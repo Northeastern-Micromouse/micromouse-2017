@@ -10,7 +10,6 @@ Our Micromouse team is made up of 7 Northeastern undergraduate electrical and co
 | Name | Major | Graduation Year |
 | ---------- | ---------- |----- |
 | Matthew Murphy | Bachelors of Computer Science and Computer Engineering | Class of 2018 |
-| Sourabh Marathe | Bachelors of Computer Engineering | Class of 2018 |
 | Billy Kalfus |Bachelors of Computer Engineering and Physics | Class of 2020 |
 | Justin Xia | Bachelors of Computer Engineering | Class of 2020 |
 | Kenneth Afriyie |Bachelors of Computer Engineering | Class of 2020 |
