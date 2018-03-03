@@ -10,7 +10,6 @@ namespace micromouse {
 const static unsigned int GPIO_BUF_SIZE = 50;
 
 GpioDevice::GpioDevice(int pin) {
-    char buf[GPIO_BUF_SIZE];
     this->pin = pin;
 
     std::fstream f;
