@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # THIS WILL BE RUN ON THE HOST
 HOST="debian@192.168.7.2"

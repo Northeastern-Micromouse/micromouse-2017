@@ -15,12 +15,12 @@ public:
     I2cDevice();
     ~I2cDevice();
 
-    void openI2C();
+    int openI2C();
     void closeI2C();
-    void setAddress(unsigned char address);
-    void sendByte(char addr, char reg, char data);
-    char readByte(char addr, char reg);
-    char* readBytes(char addr, char reg, size_t size);
+    int setAddress(unsigned char address);
+    int sendByte(char addr, char reg, char data);
+    int readByte(char addr, char reg, char* data);
+    int readBytes(char addr, char reg, size_t size, char** data);
 
 private:
     int i2cFile;
