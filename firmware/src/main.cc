@@ -1,7 +1,10 @@
+#include <fcntl.h>
+#include <iostream>
+
 #include "i2cDevice.h"
 #include "gpioDevice.h"
 #include "rgbLedDevice.h"
-#include <iostream>
+#include "digitalPotentiometer.h"
 
 int main() {
     //micromouse::I2cDevice myI2C = micromouse::I2cDevice();
@@ -11,7 +14,15 @@ int main() {
 
     micromouse::RgbLedDevice led(64, 47, 65);
     led.setRgb(1, 1, 1);
-
+	
+	int pot0fd = open("/dev/spidev1.2", O_RDWR);
+	std::cout << pot0fd << std::endl;
+	
+	micromouse::DigitalPotentiometer pot0(pot0fd);
+	
+	std::cout << pot0.setResistance(1, 128) << std::endl;
+	std::cout << pot0.setResistance(2, 64) << std::endl;
+	
     /*
     micromouse::GpioDevice r(64);
     micromouse::GpioDevice g(47);

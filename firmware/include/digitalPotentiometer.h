@@ -2,25 +2,20 @@
 #define DIGITAL_POTENTIOMETER_H
 
 #include <unistd.h>
-#include "gpioDevice.h"
+#include <sys/ioctl.h>
+#include <linux/spi/spidev.h>
 
 namespace micromouse {
 	
 class DigitalPotentiometer {
 
 public:
-	DigitalPotentiometer(unsigned char sdiPin, 
-							unsigned char clkPin, 
-							unsigned char csPin);
-	~DigitalPotentiometer();
+	DigitalPotentiometer(int fd);
 	
-	void init();
-	void setResistance(unsigned char channel, unsigned char resistance);
+	int setResistance(unsigned char channel, unsigned char resistance);
 
 private:
-	GpioDevice* _sdi;
-	GpioDevice* _clk;
-	GpioDevice* _cs;
+	int _fd;
 };
 	
 }

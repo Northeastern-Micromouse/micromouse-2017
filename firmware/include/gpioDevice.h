@@ -5,10 +5,10 @@
 #include <fstream>
 #include <string>
 
-#define OUT 1
-#define IN	0
-
 namespace micromouse {
+	
+#define GPIO_OUT 1
+#define GPIO_IN	 0
 
 class GpioDevice {
 
