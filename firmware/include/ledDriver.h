@@ -3,6 +3,8 @@
 
 #include "i2cDevice.h"
 
+namespace micromouse {
+	
 #define LED_DRIVER_DEFAULT_ADDRESS	0x40
 
 // Registers
@@ -72,18 +74,16 @@ extern "C" const unsigned char LED_DRIVER_LED_OFF_L[] = {
 	LED_DRIVER_LED14_OFF_L,
 	LED_DRIVER_LED15_OFF_L
 };
-
-namespace micromouse {
 	
 class LedDriver {
 	
 public:
-	LedDriver(unsigned char address);
+	LedDriver(I2cDevice* i2c, unsigned char address);
 	int init();
 	int setIntensity(unsigned char led, unsigned int intensity);
 	
 private:
-	I2cDevice _i2c;
+	I2cDevice* _i2c;
 	unsigned char _address;
 };
 	

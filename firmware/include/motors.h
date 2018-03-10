@@ -11,10 +11,10 @@ namespace micromouse {
 class MotorSystem {
 	
 public:
-	MotorSystem(unsigned int leftDirPin,
+	MotorSystem(GpioDevice* leftDirPin,
 			unsigned int leftStepsMemLoc,
 			unsigned int leftCyclesMemLoc,
-			unsigned int rightDirPin,
+			GpioDevice* rightDirPin,
 			unsigned int rightStepsMemLoc,
 			unsigned int rightCyclesMemLoc);
 			
@@ -29,8 +29,8 @@ public:
 	unsigned int getStepsRight();
 	
 private:
-	GpioDevice* _leftDir;
-	GpioDevice* _rightDir;
+	GpioDevice* _leftDirPin;
+	GpioDevice* _rightDirPin;
 	unsigned int _leftStepsMemLoc;
 	unsigned int _leftCyclesMemLoc;
 	unsigned int _rightStepsMemLoc;

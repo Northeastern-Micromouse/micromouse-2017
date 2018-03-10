@@ -2,19 +2,18 @@
 
 namespace micromouse {
 	
-MotorSystem::MotorSystem(unsigned int leftDirPin,
+MotorSystem::MotorSystem(GpioDevice* leftDirPin,
 							unsigned int leftStepsMemLoc,
 							unsigned int leftCyclesMemLoc,
-							unsigned int rightDirPin,
+							GpioDevice* rightDirPin,
 							unsigned int rightStepsMemLoc,
 							unsigned int rightCyclesMemLoc) :
 							_leftStepsMemLoc(leftStepsMemLoc), 
 							_leftCyclesMemLoc(leftCyclesMemLoc),
 							_rightStepsMemLoc(rightStepsMemLoc),
-							_rightCyclesMemLoc(rightCyclesMemLoc) {
-								
-	this->_leftDir = new GpioDevice(leftDirPin);
-	this->_rightDir = new GpioDevice(rightDirPin);
+							_rightCyclesMemLoc(rightCyclesMemLoc),
+							_leftDirPin(leftDirPin), 
+							_rightDirPin(rightDirPin) {
 }
 			
 void MotorSystem::drive(unsigned int stepsLeft,
