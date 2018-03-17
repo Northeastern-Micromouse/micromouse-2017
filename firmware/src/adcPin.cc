@@ -16,7 +16,6 @@ int AdcPin::getValue() {
     std::ifstream adcFile(this->_filePath);
     int value;
     adcFile >> value;
-    std::cout << value << std::endl;
     adcFile.close();
     return value;
 }

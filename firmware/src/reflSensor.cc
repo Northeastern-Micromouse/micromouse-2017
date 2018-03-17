@@ -7,6 +7,8 @@
 #include <vector>
 #include <iostream>
 
+#define NUM_ADC_READING 200
+
 namespace micromouse {
 
 ReflSensor::ReflSensor(std::string filepath, AdcPin* adcPin,
@@ -21,7 +23,12 @@ ReflSensor::ReflSensor(std::string filepath, AdcPin* adcPin,
 }
 
 float ReflSensor::getDistance() {
-    int adcValue = this->_adcPin->getValue();
+    int adcValue = 0;
+    for (int i = 0; i < NUM_ADC_READING; ++i) {
+        adcValue += _adcPin->getValue();
+    }
+
+    adcValue /= NUM_ADC_READING;
     std::cout << "Refl adc read: " << adcValue << std::endl;
     std::cout << "Refl minValue: " << _minValue << std::endl;
     std::cout << "size: " << _lookupTable->size() << std::endl;
