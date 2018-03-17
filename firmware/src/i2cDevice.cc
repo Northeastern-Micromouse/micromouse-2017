@@ -31,7 +31,7 @@ void I2cDevice::closeI2C() {
 
 int I2cDevice::setAddress(unsigned char address) {
     std::cout << "setting slave address " << std::hex;
-    std::cout << int(address) << std::endl;
+    std::cout << int(address) << std::dec << std::endl;
     if (ioctl(this->i2cFile, I2C_SLAVE, address) < 0) {
         return 0;
     }
@@ -44,7 +44,7 @@ int I2cDevice::sendByte(char addr, char reg, char data) {
     this->write_buf[0] = reg;
     this->write_buf[1] = data;
 
-    std::cout << "writing " << std::hex << int(data) << std::endl;
+    std::cout << "writing " << std::hex << int(data) << std::dec << std::endl;
     if (write(this->i2cFile, this->write_buf, 2) != 2) {
         return 0;
     }
@@ -55,7 +55,7 @@ int I2cDevice::sendByte(char addr, char reg, char data) {
 int I2cDevice::readByte(char addr, char reg, char* data) {
     this->write_buf[0] = reg;
     this->setAddress(addr);
-    std::cout << "write reg value " << std::hex << (int)reg << std::endl;
+    std::cout << "write reg value " << std::hex << (int)reg << std::dec <<std::endl;
     if (write(this->i2cFile, this->write_buf, 1) != 1) {
         return 0;
     }
@@ -73,7 +73,7 @@ int I2cDevice::readByte(char addr, char reg, char* data) {
 int I2cDevice::readBytes(char addr, char reg, size_t size, char** data) {
     this->write_buf[0] = reg;
     this->setAddress(addr);
-    std::cout << "write reg value " << std::hex << (int)reg << std::endl;
+    std::cout << "write reg value " << std::hex << (int)reg << std::dec << std::endl;
     if (write(this->i2cFile, this->write_buf, 1) != 1) {
         return 0;
     }

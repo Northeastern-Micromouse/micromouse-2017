@@ -12,6 +12,8 @@ _DEPS=i2cDevice.h \
 	  digitalPotentiometer.h \
 	  ledDriver.h \
 	  motors.h \
+	  adcPin.h \
+	  reflSensor.h
 
 DEPS=$(patsubst %,$(INCLUDE_DIR)/%,$(_DEPS))
 
@@ -22,7 +24,10 @@ _OBJ=i2cDevice.o \
 	 tableReader.o \
 	 digitalPotentiometer.o \
 	 ledDriver.o \
-	 motors.o
+	 motors.o \
+	 adcPin.o \
+	 reflSensor.o
+
 OBJ=$(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: %.cc $(DEPS)

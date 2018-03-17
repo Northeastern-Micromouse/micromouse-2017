@@ -14,6 +14,14 @@ std::vector<float>* TableReader::parseTableCSV() {
     std::ifstream csvFile(this->fpath);
     auto table = new std::vector<float>();
 
+    // populate header information
+    std::string header;
+    std::getline(csvFile, header);
+    std::stringstream headerStream(header);
+    std::string minValue;
+    std::getline(headerStream, minValue, ',');
+    this->minValue = std::stoi(minValue);
+
     while (csvFile) {
         std::string line;
         std::getline(csvFile, line);
@@ -28,6 +36,10 @@ std::vector<float>* TableReader::parseTableCSV() {
         }
     }
     return table;
+}
+
+int TableReader::getMinValue() {
+    return this->minValue;
 }
 
 } // namespace micromouse

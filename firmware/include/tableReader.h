@@ -12,8 +12,10 @@ class TableReader {
  public:
     TableReader(std::string fpath);
     std::vector<float>* parseTableCSV();
+    int getMinValue();
  private:
     std::string fpath;
+    int minValue;
 };
 
 }
