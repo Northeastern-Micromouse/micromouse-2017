@@ -10,14 +10,14 @@
 namespace micromouse {
 
 ReflSensor::ReflSensor(std::string filepath, AdcPin* adcPin,
-                       LedDriver* pwmChip, int pwmChannel, int brightness) :
+                       LedDriver* pwmChip, int pwmChannel) :
     _lookupTable(TableReader(filepath).parseTableCSV()),
     _adcPin(adcPin) {
     TableReader reader(filepath);
     _lookupTable = reader.parseTableCSV();
     _minValue = reader.getMinValue();
     pwmChip->init();
-    pwmChip->setIntensity(pwmChannel, brightness);
+    pwmChip->setIntensity(pwmChannel, reader.getBrightness());
 }
 
 float ReflSensor::getDistance() {
@@ -32,6 +32,7 @@ float ReflSensor::getDistance() {
         return this->_lookupTable->at(this->_lookupTable->size() - 1);
     }
     return this->_lookupTable->at(adcValue - this->_minValue);
+    std::cout << "refl distance read: ";
 }    
 
 } // namespace micromouse

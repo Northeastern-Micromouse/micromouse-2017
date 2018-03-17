@@ -33,7 +33,7 @@ int main() {
     micromouse::LedDriver pwmChip(&myI2C, 0x40);
     pwmChip.init();
 
-    micromouse::ReflSensor refl0("test.csv", &refl0Pin, &pwmChip, 0, 4095);
+    micromouse::ReflSensor refl0("test.csv", &refl0Pin, &pwmChip, 0);
     std::cout << refl0.getDistance() << " is DISTANCE" << std::endl;
 	//int pot0fd = open("/dev/spidev1.2", O_RDWR);
 	//std::cout << pot0fd << std::endl;

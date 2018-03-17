@@ -14,7 +14,7 @@ class ReflSensor {
 
  public:
     ReflSensor(std::string filePath, AdcPin* adcPin,
-               LedDriver* pwmChip, int pwmChannel, int brightness);
+               LedDriver* pwmChip, int pwmChannel);
     float getDistance();
 
  private:
