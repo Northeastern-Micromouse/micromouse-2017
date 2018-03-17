@@ -1,16 +1,18 @@
 import tkinter
 from tkinter import *
 import time
+import random
 
 class Cell:
     cellSize = 30
     bufferSize = 10
-    
-    def __init__(self, x, y):
-        self.top = "unknown"
-        self.left = "unknown"
-        self.right = "unknown"
-        self.bot = "unknown"
+
+    def __init__(self, x, y, top = "unknown", left = "unknown",
+                 right = "unknown", bot = "unknown"):
+        self.top = top
+        self.left = left
+        self.right = right
+        self.bot = bot
         self.col = x
         self.row = y
         self.id = "x" + str(x) + "y" + str(y)
@@ -55,12 +57,11 @@ class Maze:
     w = 16
     animationSpeed = 1
     
-    def __init__(self, can):
+    def __init__(self, truth, can):
         self.curX = 0
         self.curY = 0
         self.maze = [[Cell(x, y) for x in range(Maze.w)] for y in range(Maze.h)]
-        self.truth = [[Cell(x, y) for x in range(Maze.w)] for y in range(Maze.h)]
-        self.readMaze()
+        self.truth = truth
 
         self.c = can
         self.pos = self.c.create_oval(
@@ -148,34 +149,114 @@ class Maze:
             (self.curX) * Cell.cellSize,
             (self.curY) * Cell.cellSize)
 
-    def getCoord(self, coordNum):
+    @staticmethod
+    def getCoord(coordNum):
         return (2 * coordNum) + 1;
 
-    def readMaze(self):
+    @staticmethod
+    def readMaze():
+        truth = [[Cell(x, y) for x in range(Maze.w)] for y in range(Maze.h)]
+        
         with open("C:\\Users\\Justin\\Documents\\Micromouse\\maze.txt") as f:
             content = f.readlines()
                 
         for i in range(0, Maze.w):
             for j in range(0, Maze.h):
-                if (content[self.getCoord(i) + 1][self.getCoord(j)] != '#') :
-                    (self.truth[i][j]).bot = "space";
+                if (content[Maze.getCoord(i) + 1][Maze.getCoord(j)] != '#') :
+                    (truth[i][j]).bot = "space";
                 else :
-                    (self.truth[i][j]).bot = "wall";
+                    (truth[i][j]).bot = "wall";
     
-                if (content[self.getCoord(i) - 1][self.getCoord(j)] != '#') :
-                    (self.truth[i][j]).top = "space";
+                if (content[Maze.getCoord(i) - 1][Maze.getCoord(j)] != '#') :
+                    (truth[i][j]).top = "space";
                 else :
-                    (self.truth[i][j]).top = "wall";
+                    (truth[i][j]).top = "wall";
 
-                if (content[self.getCoord(i)][self.getCoord(j) - 1] != '#') :
-                    (self.truth[i][j].left) = "space";
+                if (content[Maze.getCoord(i)][Maze.getCoord(j) - 1] != '#') :
+                    (truth[i][j].left) = "space";
                 else :
-                    (self.truth[i][j]).left = "wall";
+                    (truth[i][j]).left = "wall";
 
-                if (content[self.getCoord(i)][self.getCoord(j) + 1] != '#') :
-                    (self.truth[i][j].right) = "space";
+                if (content[Maze.getCoord(i)][Maze.getCoord(j) + 1] != '#') :
+                    (truth[i][j].right) = "space";
                 else :
-                    (self.truth[i][j]).right = "wall";
+                    (truth[i][j]).right = "wall";
+
+        return truth
+
+class Vertex:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+class Edge:
+    def __init__(self, v1, v2):
+        self.e = set([v1, v2])
+        self.weight = random.randint(1, 100)
+
+    def __lt__(self, other):
+        return self.weight < other.weight
+
+class MST:
+    Size = Maze.w
+    
+    def __init__(self):
+        maze = []
+        for x in range(0, MST.Size):
+            col = []
+            for y in range(0, MST.Size):
+                col.append(Vertex(x, y))
+            maze.append(col);
+
+        edges = []
+        for x in range(0, MST.Size - 1):
+            for y in range(0, MST.Size):
+                edges.append(Edge(maze[x][y], maze[x+1][y]))
+                
+        for x in range(0, MST.Size):
+            for y in range(0, MST.Size - 1):
+                edges.append(Edge(maze[x][y], maze[x][y+1]))
+
+        edges.sort()
+
+        connectedVertices = set([maze[0][0]])
+        self.mst = set()
+        rmEdge = 0
+        
+        while len(connectedVertices) != MST.Size * MST.Size:
+            for e in edges:
+                if (len(connectedVertices.intersection(e.e)) == 1):
+                    self.mst.add(e)
+                    connectedVertices = connectedVertices.union(e.e)
+                    rmEdge = e
+                    break    
+            edges.remove(rmEdge)
+
+
+    # Why reverse y and x???
+    def convertToMaze(self):
+        maze = [[Cell(x, y, "wall", "wall", "wall", "wall")
+                 for x in range(MST.Size)] for y in range(MST.Size)]
+
+        for e in self.mst:
+            l = list(e.e)
+            if (l[0].x == l[1].x):
+                if (l[0].y > l[1].y):
+                    maze[l[0].y][l[0].x].top = "space"
+                    maze[l[1].y][l[1].x].bot = "space"
+                else:
+                    maze[l[0].y][l[0].x].bot = "space"
+                    maze[l[1].y][l[1].x].top = "space"
+            else:
+                if (l[0].x > l[1].x):
+                    maze[l[0].y][l[0].x].left = "space"
+                    maze[l[1].y][l[1].x].right = "space"
+                else:
+                    maze[l[0].y][l[0].x].right = "space"
+                    maze[l[1].y][l[1].x].left = "space"
+
+        return maze
+    
 # How to use simulator:
 #     1) Create tkinter and Canvas objects
 #     2) Create Maze object using the Canvas object
@@ -192,7 +273,12 @@ def main():
     c = Canvas(gui, bg="white",
                height=Cell.cellSize * Maze.h + 2 * Cell.bufferSize,
                width=Cell.cellSize * Maze.w + 2 * Cell.bufferSize)
-    m = Maze(c)
+
+    #truth = Maze.readMaze()
+    truth = MST().convertToMaze()
+    
+    m = Maze(truth, c)
+    
     c.pack()
 
     dirs = ["down", "down", "down", "down", "down", "down", "down", "down", "down", "down", "down", "down", "down", "down", "down", "right",
