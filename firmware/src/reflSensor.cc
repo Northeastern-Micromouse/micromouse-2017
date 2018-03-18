@@ -18,6 +18,7 @@ ReflSensor::ReflSensor(std::string filepath, AdcPin* adcPin,
     TableReader reader(filepath);
     _lookupTable = reader.parseTableCSV();
     pwmChip->init();
+    std::cout << "brightness: " << reader.getBrightness() << std::endl;
     pwmChip->setIntensity(pwmChannel, reader.getBrightness());
 }
 
