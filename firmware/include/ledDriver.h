@@ -56,7 +56,7 @@ namespace micromouse {
 // Constants
 #define LED_DRIVER_PRE_SCALE_1526HZ	0x03
 #define LED_DRIVER_PRE_SCALE_24HZ	0xFF
-extern "C" const unsigned char LED_DRIVER_LED_OFF_L[] = {
+const unsigned char LED_DRIVER_LED_OFF_L[] = {
 	LED_DRIVER_LED0_OFF_L,
 	LED_DRIVER_LED1_OFF_L,
 	LED_DRIVER_LED2_OFF_L,	

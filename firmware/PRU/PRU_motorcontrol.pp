@@ -1,0 +1,12 @@
+./pru0/main0.object: ./PRU_gpioToggle.c
+./pru0/main0.object: /usr/share/ti/cgt-pru/include/stdint.h
+./pru0/main0.object: /usr/lib/ti/pru-software-support-package/include/am335x/pru_cfg.h
+./pru0/main0.object: /usr/lib/ti/pru-software-support-package/include/am335x/pru_intc.h
+./pru0/main0.object: /usr/lib/ti/pru-software-support-package/include/pru_rpmsg.h
+./pru0/main0.object: /usr/lib/ti/pru-software-support-package/include/pru_virtqueue.h
+./pru0/main0.object: /usr/lib/ti/pru-software-support-package/include/rsc_types.h
+./pru0/main0.object: /usr/lib/ti/pru-software-support-package/include/pru_types.h
+./pru0/main0.object: /usr/lib/ti/pru-software-support-package/include/pru_virtio_ring.h
+./pru0/main0.object: ./resource_table.h
+./pru0/main0.object: /usr/share/ti/cgt-pru/include/stddef.h
+./pru0/main0.object: /usr/lib/ti/pru-software-support-package/include/pru_virtio_ids.h
