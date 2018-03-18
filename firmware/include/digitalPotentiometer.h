@@ -12,7 +12,7 @@ class DigitalPotentiometer {
 public:
 	DigitalPotentiometer(int fd);
 	
-	int setResistance(unsigned char channel, unsigned char resistance);
+	int setResistance(unsigned int channel, unsigned int resistance);
 
 private:
 	int _fd;

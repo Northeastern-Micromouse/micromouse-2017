@@ -9,11 +9,11 @@ DigitalPotentiometer::DigitalPotentiometer(int fd) : _fd(fd) {}
  * Channel is 1-6 for the AD5206 and resistance is 0-255.
  * Each LSB is a 39.0625ohm increase, with R = 45ohms for value = 0x00.
  */
-int DigitalPotentiometer::setResistance(unsigned char channel, 
-											unsigned char resistance) {
+int DigitalPotentiometer::setResistance(unsigned int channel, 
+											unsigned int resistance) {
 	
 	// Create the 11-bit word
-	unsigned int data[] = { resistance, channel-1 };
+	unsigned int data[] = {channel, resistance};
 	
 	// Send the data over the SPI interface
 	struct spi_ioc_transfer tr = {

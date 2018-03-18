@@ -9,14 +9,19 @@
 	fragment@0 {
 		target = <&ocp>;
 		__overlay__ {
-			P1_08_pinmux { status = "disabled"; }; /* SCLK - spi0_sclk - P1_08 */
-			P1_10_pinmux { status = "disabled"; }; /* MISO - spi0_d0   - P1_10 */
-			P1_12_pinmux { status = "disabled"; }; /* MOSI - spi0_d1   - P1_12 */
-			P1_35_pinmux { status = "disabled"; }; /* CS0  - lcd_pclk  - P1_35 */
-			P2_02_pinmux { status = "disabled"; }; /* CS1 - gpmc_a11   - P2_02 */
-			P1_06_pinmux { status = "disabled"; }; /* CS2 - spi0_cs0   - P1_06 */
-			P2_19_pinmux { status = "disabled"; }; /* CS3 - gpmc_ad11  - P2_19 */
-			P2_07_pinmux { status = "disabled"; }; /* CS4 - gpmc_wpn   - P2_07 */
+			P1_08_pinmux { status = "disabled"; }; /* SCLK   - spi0_sclk     - P1_08 */
+			P1_10_pinmux { status = "disabled"; }; /* MISO   - spi0_d0       - P1_10 */
+			P1_12_pinmux { status = "disabled"; }; /* MOSI   - spi0_d1       - P1_12 */
+			P1_35_pinmux { status = "disabled"; }; /* CS0    - lcd_pclk      - P1_35 */
+			P2_02_pinmux { status = "disabled"; }; /* CS1    - gpmc_a11      - P2_02 */
+			P1_06_pinmux { status = "disabled"; }; /* CS2    - spi0_cs0      - P1_06 */
+			P2_19_pinmux { status = "disabled"; }; /* CS3    - gpmc_ad11     - P2_19 */
+			P2_07_pinmux { status = "disabled"; }; /* CS4    - gpmc_wpn      - P2_07 */
+			P1_36_pinmux { status = "disabled"; }; /* PRU0_0 - mcasp0_aclkx  - P1_36 */
+			P1_33_pinmux { status = "disabled"; }; /* PRU0_1 - mcasp0_fsx    - P1_33 */
+			P2_32_pinmux { status = "disabled"; }; /* PRU0_2 - mcasp0_axr0   - P2_32 */
+			P2_30_pinmux { status = "disabled"; }; /* PRU0_3 - mcasp0_ahclkr - P2_30 */
+			P1_31_pinmux { status = "disabled"; }; /* PRU0_4 - mcasp0_aclkr  - P1_31 */
 		};
 	};
 	
@@ -44,21 +49,36 @@
 		__overlay__ {
 			spi0_pins: spi0_pins {
 				pinctrl-single,pins = <
-					0x150 0x30 /* SCLK - spi0_sclk (MODE0 | INPUT  | PULLUP) */
-					0x154 0x30 /* MISO - spi0_d0   (MODE0 | INPUT  | PULLUP) */
-					0x158 0x10 /* MOSI - spi0_d1   (MODE0 | OUTPUT | PULLUP) */
-					0x0e8 0x17 /* CS0 - lcd_pclk   (MODE7 | OUTPUT | PULLUP) */
-					0x06c 0x17 /* CS1 - gpmc_a11   (MODE7 | OUTPUT | PULLUP) */
-					0x15c 0x17 /* CS2 - spi0_cs0   (MODE7 | OUTPUT | PULLUP) */
-					0x02c 0x17 /* CS3 - gpmc_ad11  (MODE7 | OUTPUT | PULLUP) */
-					0x074 0x17 /* CS4 - gpmc_wpn   (MODE7 | OUTPUT | PULLUP) */
+					0x150 0x30 /* SCLK   - spi0_sclk     (MODE0 | INPUT  | PULLUP) */
+					0x154 0x30 /* MISO   - spi0_d0       (MODE0 | INPUT  | PULLUP) */
+					0x158 0x10 /* MOSI   - spi0_d1       (MODE0 | OUTPUT | PULLUP) */
+					0x0e8 0x17 /* CS0    - lcd_pclk      (MODE7 | OUTPUT | PULLUP) */
+					0x06c 0x17 /* CS1    - gpmc_a11      (MODE7 | OUTPUT | PULLUP) */
+					0x15c 0x17 /* CS2    - spi0_cs0      (MODE7 | OUTPUT | PULLUP) */
+					0x02c 0x17 /* CS3    - gpmc_ad11     (MODE7 | OUTPUT | PULLUP) */
+					0x074 0x17 /* CS4    - gpmc_wpn      (MODE7 | OUTPUT | PULLUP) */
+				>;
+			};
+			
+			mm_pru_pins: mm_pru_pins {
+				pinctrl-single,pins = <
+					0x190 0x15 /* PRU0_0 - mcasp0_aclkx  (MODE5 | OUTPUT | PULLUP) */
+					0x194 0x15 /* PRU0_1 - mcasp0_fsx    (MODE5 | OUTPUT | PULLUP) */
+				>;
+			};
+			
+			mm_gpio_pins: mm_gpio_pins {
+				pinctrl-single,pins = <
+					0x198 0x17 /* PRU0_2 - mcasp0_axr0   (MODE7 | OUTPUT | PULLUP) */
+					0x19C 0x17 /* PRU0_3 - mcasp0_ahclkr (MODE7 | OUTPUT | PULLUP) */ 
+					0x1A0 0x17 /* PRU0_4 - mcasp0_aclkr  (MODE7 | OUTPUT | PULLUP) */
 				>;
 			};
 		};
 	};
 	
-    fragment@4 {
-        target = <&spi0>;
+	fragment@4 {
+	target = <&spi0>;
         __overlay__ {
             #address-cells = <1>;
             #size-cells = <0>;
@@ -110,5 +130,17 @@
 			};
         };
     };
+	
+	fragment@5 {
+		target = <&ocp>;
+		__overlay__ {
+			mm_pin_helper: mm_pin_helper {
+				compatible = "bone-pinmux-helper";
+				pinctrl-names = "default";
+				pinctrl-0 = <&mm_gpio_pins &mm_pru_pins>;
+				status = "okay";
+			};
+		};
+	};
 };
 
