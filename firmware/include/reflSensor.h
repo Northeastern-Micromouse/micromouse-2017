@@ -19,7 +19,6 @@ class ReflSensor {
 
  private:
     std::vector<float>* _lookupTable;
-    int _minValue;
     AdcPin* _adcPin;
 };
 
