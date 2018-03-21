@@ -5,11 +5,15 @@
 #include "i2cDevice.h"
 #include "gpioDevice.h"
 #include "rgbLedDevice.h"
+#include "digitalPotentiometer.h"
+#include "tableReader.h"
+#include "adcPin.h"
+#include "reflSensor.h"
 #include "ledDriver.h"
 #include "motors.h"
 
 int main() {
-    //micromouse::I2cDevice myI2C = micromouse::I2cDevice();
+    micromouse::I2cDevice myI2C = micromouse::I2cDevice();
     //std::cout << std::hex << (int)myI2C.readByte(0x28, 0x0) << std::endl;
     //65 47 64
     //46 44 124
