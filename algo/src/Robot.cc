@@ -28,6 +28,7 @@ void Robot::Map() {
   while (!neighbors_.empty()) {
     CellPair cell = neighbors_.top();
     Log("Got the cell: " + std::to_string(cell.first_->x_) + "," + std::to_string(cell.first_->y_));
+    Log("Added from cell: " + std::to_string(cell.second_.x_) + "," + std::to_string(cell.second_.y_));
     neighbors_.pop();
     // Move to where you were when you put the cell on the stack.
     Direction dir = GetDirection(&cell.second_);
@@ -155,6 +156,9 @@ void Robot::TurnNorth(){
     case Direction::SOUTH:
       Rotate(180);
       break;
+    case Direction::NONE:
+      // No op.
+      break;
   }
   orientation_ = Direction::NORTH;
 }
@@ -172,6 +176,9 @@ void Robot::TurnEast() {
       break;
     case Direction::SOUTH:
       Rotate(180);
+      break;
+    case Direction::NONE:
+      // No op.
       break;
   }
   orientation_ = Direction::EAST;
@@ -191,6 +198,9 @@ void Robot::TurnWest() {
     case Direction::SOUTH:
       Rotate(90);
       break;
+    case Direction::NONE:
+      // No op.
+      break;
   }
   orientation_ = Direction::WEST;
 }
@@ -207,6 +217,9 @@ void Robot::TurnSouth() {
       Rotate(90);
       break;
     case Direction::SOUTH:
+      // No op.
+      break;
+    case Direction::NONE:
       // No op.
       break;
   }
@@ -232,6 +245,9 @@ void Robot::GoBack(Direction dir) {
       return;
     case Direction::WEST:
       Move(Direction::EAST);
+      return;
+    case Direction::NONE:
+      // No op.
       return;
   }
 }
