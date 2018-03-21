@@ -11,17 +11,18 @@ LedDriver::LedDriver(I2cDevice* i2c, unsigned char address) :
  *	Returns 0 if an error occurred, otherwise returns 1.
  */
 int LedDriver::init() {
-	if(!this->_i2c->sendByte(this->_address, LED_DRIVER_MODE1, 0x01)) {
-		return 0;
+	int error;
+	if((error = this->_i2c->sendByte(this->_address, LED_DRIVER_MODE1, 0x01))) {
+		return error;
 	}
 	
-	if(!this->_i2c->sendByte(this->_address, 
+	if((error = this->_i2c->sendByte(this->_address, 
 							LED_DRIVER_PRE_SCALE,
-							LED_DRIVER_PRE_SCALE_1526HZ)) {
-		return 0;
+							LED_DRIVER_PRE_SCALE_1526HZ))) {
+		return error;
 	}
 	
-	return 1;
+	return 0;
 }
 
 /**
@@ -30,9 +31,17 @@ int LedDriver::init() {
  *	Returns 0 if an error occurred, otherwise returns 1.
  */
 int LedDriver::setIntensity(unsigned char led, unsigned int intensity) {
-	return this->_i2c->sendByte(this->_address,
+	int error = this->_i2c->sendByte(this->_address,
 								LED_DRIVER_LED_OFF_L[led],
-								intensity);
+								(unsigned char)(intensity & 0xFF));
+								
+	if(error) {
+		return error;
+	}
+	
+	return this->_i2c->sendByte(this->_address,
+								LED_DRIVER_LED_OFF_L[led] + 1,
+								(unsigned char)((intensity & 0x0F00) >> 8));
 }
 
 }
