@@ -2,7 +2,7 @@
 #define MICROMOUSE_2018_ALGO_MAZE_H
 
 #include <vector>
-
+#include <string>
 #include "Cell.h"
 
 namespace algorithm {
@@ -12,6 +12,8 @@ class Maze {
   Maze(bool enable_debugging_, int rows, int cols);
 
   void Clear();
+
+  void print();
 
   Cell& get(int x, int y);
 
