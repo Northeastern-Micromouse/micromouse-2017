@@ -80,7 +80,7 @@ void main(void)
 				}
 				
 				// Report all done to the host
-				pru_rpmsg_send(&transport,dst, src, "OK", 2);
+				pru_rpmsg_send(&transport,dst, src, "K", 1);
 			}
 			else {
 				CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;

@@ -1,0 +1,169 @@
+#include "robot.h"
+
+namespace micromouse {
+	
+int Robot::init() {
+	/** Initialize drive system **/
+	micromouse::GpioDevice* leftMotorDirPin = new GpioDevice(112);
+	micromouse::GpioDevice* rightMotorDirPin = new GpioDevice(113);
+	micromouse::GpioDevice* enableMotorPin = new GpioDevice(114);
+	
+	leftMotorDirPin->setDirection(GPIO_OUT);
+	rightMotorDirPin->setDirection(GPIO_OUT);
+	enableMotorPin->setDirection(GPIO_OUT);
+	
+	this->_motorSystem = new micromouse::MotorSystem("/dev/rpmsg_pru30",  
+													leftMotorDirPin, 
+													rightMotorDirPin, 
+													enableMotorPin);
+	std::cout << "Initialized drive system." << std::endl;
+	
+	/** Initialize sensors **/
+	micromouse::I2cDevice* i2c1 = new I2cDevice(1);
+	micromouse::LedDriver* ledDriver = 
+		new LedDriver(i2c1, LED_DRIVER_DEFAULT_ADDRESS);
+		
+	ledDriver->init();
+	
+	std::cout << "Initialized LED driver." << std::endl;
+	
+	micromouse::AdcPin* adc0 = new AdcPin(2, 0);
+	micromouse::AdcPin* adc1 = new AdcPin(2, 1);
+	micromouse::AdcPin* adc2 = new AdcPin(2, 2);
+	micromouse::AdcPin* adc3 = new AdcPin(2, 3);
+	micromouse::AdcPin* adc4 = new AdcPin(2, 4);
+	micromouse::AdcPin* adc5 = new AdcPin(2, 5);
+	
+	this->_leftFrontFacing = new
+		micromouse::ReflSensor("/home/debian/calibration/sensor3.csv",
+								adc3,
+								ledDriver,
+								3);
+	
+	this->_rightFrontFacing = new
+		micromouse::ReflSensor("/home/debian/calibration/sensor5.csv",
+								adc5,
+								ledDriver,
+								5);
+								
+	this->_frontLeftFacing = new
+		micromouse::ReflSensor("/home/debian/calibration/sensor2.csv",
+								adc2,
+								ledDriver,
+								2);
+								
+	this->_rearLeftFacing = new
+		micromouse::ReflSensor("/home/debian/calibration/sensor0.csv",
+								adc0,
+								ledDriver,
+								0);
+								
+	this->_frontRightFacing = new
+		micromouse::ReflSensor("/home/debian/calibration/sensor1.csv",
+								adc1,
+								ledDriver,
+								1);
+								
+	this->_rearRightFacing = new
+		micromouse::ReflSensor("/home/debian/calibration/sensor4.csv",
+								adc4,
+								ledDriver,
+								4);
+	
+	std::cout << "Initialized reflectance sensors." << std::endl;
+	
+	this->_led1 = new micromouse::RgbLedDevice(64, 47, 65);
+	this->_led1->setRgb(0, 0, 1);
+}
+
+int Robot::getLeftDistance(float* distance) {
+	*distance = (this->_frontLeftFacing->getDistance() +
+				this->_rearLeftFacing->getDistance())/2.0;
+	
+	return 0;
+}
+
+int Robot::getRightDistance(float* distance) {
+	*distance = (this->_frontRightFacing->getDistance() +
+				this->_rearRightFacing->getDistance())/2.0;
+	
+	return 0;
+}
+
+int Robot::getFrontDistance(float* distance) {
+	*distance = (this->_leftFrontFacing->getDistance() +
+				this->_rightFrontFacing->getDistance())/2.0;
+	
+	return 0;
+}
+
+//Distance in microns and speed in microns/s
+int Robot::pid_drive(int distance, int speed) {
+	
+	this->_motorSystem->enable();
+	
+	this->_motorSystem->beginDrive(distance, speed, MOTOR_FORWARD, MOTOR_FORWARD);
+	
+	bool finished = false;
+	while(!finished) {
+		bool req = false;
+		int error;
+		if(error = this->_motorSystem->requestedError(&req)) {
+			std::cout << "Error; could not query for error request." << std::endl;
+			return error;
+		}
+		
+		if(req) {
+			std::cout << "Got error req" << std::endl;
+			// PRU requesting error, take data and pass along
+			float leftDistance, rightDistance;
+			if(error = getLeftDistance(&leftDistance)) {
+				std::cout << "Error getting left distance." << std::endl;
+				return error;
+			}
+			if(error = getRightDistance(&rightDistance)) {
+				std::cout << "Error getting right distance." << std::endl;
+				return error;
+			}
+			
+			int pidError = (int)((leftDistance - rightDistance) * 1000.0);
+			
+			if(error = this->_motorSystem->writePRU(pidError)) {
+				std::cout << "Error writing to PRU." << std::endl;
+				return error;
+			}
+		}
+		
+		if(error = this->_motorSystem->finished(&finished)) {
+			std::cout << "Error; could not query for motion completion." << std::endl;
+			return error;
+		}
+		
+	}
+								
+	this->_motorSystem->disable();
+	
+	return 0;
+}
+
+int Robot::turn(int direction) {
+	
+}
+
+int Robot::checkWallFront(bool* result) {
+	
+}
+
+int Robot::checkWallRight(bool* result) {
+	
+}
+
+int Robot::checkWallLeft(bool* result) {
+	
+}
+
+void Robot::setLED1(int r, int g, int b) {
+	this->_led1->setRgb(r, g, b);
+}
+
+}

@@ -21,13 +21,10 @@ public:
 				
 	void enable();
 	void disable();
-	int drive(unsigned int stepsLeft,
-				unsigned int stepsRight,
-				unsigned int periodLeft,
-				unsigned int periodRight,
-				bool directionLeft,
-				bool directionRight,
-				unsigned int timeout);
+	int beginDrive(unsigned int steps,
+				unsigned int speed,
+				unsigned int directionLeft,
+				unsigned int directionRight);
 	int writePRU(int data);
 	int readPRU(int* data);
 	int requestedError(bool* result);

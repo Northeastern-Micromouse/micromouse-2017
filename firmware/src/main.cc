@@ -2,11 +2,7 @@
 #include <unistd.h>
 #include <iostream>
 
-#include "i2cDevice.h"
-#include "gpioDevice.h"
-#include "rgbLedDevice.h"
-#include "ledDriver.h"
-#include "motors.h"
+#include "robot.h"
 
 int main() {
     //micromouse::I2cDevice myI2C = micromouse::I2cDevice();
@@ -25,45 +21,17 @@ int main() {
 	std::cout << "Set: " << leds.setIntensity(0, 4095) << std::endl;
 	*/
 	
-	int pru0_file = open("/dev/rpmsg_pru30", O_RDWR);
-    if (pru0_file < 0) {
-		printf("Error opening PRU0 RPMSG file.\n");
-        return pru0_file;
+	
+	micromouse::Robot robot;
+	robot.init();
+	
+	while(1) {
+		robot.turn(1, 100);
+		usleep(1000000);
+		robot.pid_drive(180, 100);
+		usleep(1000000);
 	}
 	
-	micromouse::GpioDevice leftMotorDirPin(112);
-	micromouse::GpioDevice rightMotorDirPin(113);
-	micromouse::GpioDevice enableMotorPin(114);
-	
-	leftMotorDirPin.setDirection(GPIO_OUT);
-	rightMotorDirPin.setDirection(GPIO_OUT);
-	enableMotorPin.setDirection(GPIO_OUT);
-	
-	micromouse::MotorSystem motorSystem(pru0_file,  
-										&leftMotorDirPin, 
-										&rightMotorDirPin, 
-										&enableMotorPin);
-	
-	motorSystem.enable();
-	
-	motorSystem.drive(16000, 200, MOTOR_FORWARD, 16000, 200, MOTOR_FORWARD);
-	
-	motorSystem.disable();
-	
-	while(read(pru0_file, NULL, 2) != 2) {
-		
-	}
-    /*
-    micromouse::GpioDevice r(64);
-    micromouse::GpioDevice g(47);
-    micromouse::GpioDevice b(65);
-    r.setValue(1);
-    std::cout << "r " << r.getValue() << std::endl;
-    g.setValue(1);
-    std::cout << "g " << g.getValue() << std::endl;
-    b.setValue(0);
-    std::cout << "b " << b.getValue() << std::endl;
-    */
-	
+   
 	return 0;
 }
