@@ -1,12 +1,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <iostream>
+#include <fstream>
 
-#include "i2cDevice.h"
-#include "gpioDevice.h"
-#include "rgbLedDevice.h"
-#include "ledDriver.h"
-#include "motors.h"
+#include "robot.h"
 
 int main() {
     //micromouse::I2cDevice myI2C = micromouse::I2cDevice();
@@ -25,45 +22,66 @@ int main() {
 	std::cout << "Set: " << leds.setIntensity(0, 4095) << std::endl;
 	*/
 	
-	int pru0_file = open("/dev/rpmsg_pru30", O_RDWR);
-    if (pru0_file < 0) {
-		printf("Error opening PRU0 RPMSG file.\n");
-        return pru0_file;
-	}
+	//usleep(6000000);
 	
-	micromouse::GpioDevice leftMotorDirPin(112);
-	micromouse::GpioDevice rightMotorDirPin(113);
-	micromouse::GpioDevice enableMotorPin(114);
+	std::ifstream speedStream;
+	speedStream.open("/home/debian/speed.txt");
+	float driveSpeed, turnSpeed;
+	speedStream >> driveSpeed;
+	speedStream >> turnSpeed;
+	speedStream.close();
 	
-	leftMotorDirPin.setDirection(GPIO_OUT);
-	rightMotorDirPin.setDirection(GPIO_OUT);
-	enableMotorPin.setDirection(GPIO_OUT);
+	micromouse::Robot robot;
+	robot.init();
+	robot.enableMotors();
 	
-	micromouse::MotorSystem motorSystem(pru0_file,  
-										&leftMotorDirPin, 
-										&rightMotorDirPin, 
-										&enableMotorPin);
-	
-	motorSystem.enable();
-	
-	motorSystem.drive(16000, 200, MOTOR_FORWARD, 16000, 200, MOTOR_FORWARD);
-	
-	motorSystem.disable();
-	
-	while(read(pru0_file, NULL, 2) != 2) {
+	while(1) {
 		
+		bool frontWall = false;
+		bool leftWall = false;
+		bool rightWall = false;
+		robot.checkWallFront(&frontWall);
+		robot.checkWallLeft(&leftWall);
+		robot.checkWallRight(&rightWall);
+		
+		if(frontWall) {
+			robot.turn(-1, turnSpeed);
+		}
+		else {
+			robot.pid_drive(180, driveSpeed);
+		}
+		
+		/*
+		std::cout << frontWall << leftWall << rightWall << std::endl;
+		
+		if(frontWall && leftWall && rightWall) {
+			robot.turn(2, turnSpeed);
+		}
+		else {
+			int i;
+			bool wallPicked = false;
+			while(!wallPicked) {
+				i = rand() % 3;
+				switch(i) {
+					case 0: wallPicked = !frontWall;
+					case 1: wallPicked = !leftWall;
+					case 2: wallPicked = !rightWall;
+				}
+			}
+			switch(i) {
+				case 0:
+					robot.pid_drive(180, driveSpeed);
+				case 1:
+					robot.turn(-1, turnSpeed);
+					robot.pid_drive(180, driveSpeed);
+				case 2:
+					robot.turn(1, turnSpeed);
+					robot.pid_drive(180, driveSpeed);
+			}
+		}
+		*/
 	}
-    /*
-    micromouse::GpioDevice r(64);
-    micromouse::GpioDevice g(47);
-    micromouse::GpioDevice b(65);
-    r.setValue(1);
-    std::cout << "r " << r.getValue() << std::endl;
-    g.setValue(1);
-    std::cout << "g " << g.getValue() << std::endl;
-    b.setValue(0);
-    std::cout << "b " << b.getValue() << std::endl;
-    */
 	
+   
 	return 0;
 }

@@ -12,7 +12,7 @@ namespace micromouse {
 class I2cDevice {
 
 public:
-    I2cDevice();
+    I2cDevice(int bus);
     ~I2cDevice();
 
     int openI2C();
@@ -20,10 +20,11 @@ public:
     int setAddress(unsigned char address);
     int sendByte(char addr, char reg, char data);
     int readByte(char addr, char reg, char* data);
-    int readBytes(char addr, char reg, size_t size, char** data);
+    int readBytes(char addr, char reg, size_t size, char* data);
 
 private:
     int i2cFile;
+	int _bus;
     char read_buf[BUF_SIZE];
     char write_buf[BUF_SIZE];
 };

@@ -1,9 +1,6 @@
 #ifndef	MOTORS_H
 #define MOTORS_H
 
-#include <fcntl.h>
-#include <unistd.h>
-
 #define MOTOR_FORWARD 1
 #define MOTOR_BACKWARD 0
 
@@ -17,7 +14,7 @@ namespace micromouse {
 class MotorSystem {
 	
 public:
-	MotorSystem(int pruFile,
+	MotorSystem(std::string pruFile,
 				GpioDevice* leftDirPin,
 				GpioDevice* rightDirPin,
 				GpioDevice* enablePin);
@@ -25,14 +22,15 @@ public:
 	void enable();
 	void disable();
 	int drive(unsigned int stepsLeft,
-				unsigned int usLeft,
-				unsigned int directionLeft,
 				unsigned int stepsRight,
-				unsigned int usRight,
-				unsigned int directionRight);
+				unsigned int periodLeft,
+				unsigned int periodRight,
+				bool directionLeft,
+				bool directionRight,
+				unsigned int timeout);
 	
 private:
-	int _pruFile;
+	std::string _pruFile;
 	GpioDevice* _leftDirPin;
 	GpioDevice* _rightDirPin;
 	GpioDevice* _enablePin;
