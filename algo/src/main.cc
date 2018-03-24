@@ -3,8 +3,8 @@
 
 #include <iostream>
 
-#include "Robot.h"
-#include "Direction.h"
+#include "../../firmware/include/AlgoRobot.h"
+#include "../../firmware/include/Direction.h"
 
 int main() {
   std::cout << "Running the micromouse program!" << std::endl;

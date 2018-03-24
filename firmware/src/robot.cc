@@ -311,13 +311,24 @@ int Robot::turn(int amt, float speed) {
 	
 	usleep(500000);
 	
-	float heading;
-	int error = this->getHeading(&heading);
-	if(error) {
-		return error;
-	}
+	float previous, current;
+	do {
+		ret = getHeading(&previous);
+		if(ret) {
+			std::cout << "Error reading IMU." << std::endl;
+			//return -1;
+		}
+		usleep(250000);
+		ret = getHeading(&current);
+		if(ret) {
+			std::cout << "Error reading IMU." << std::endl;
+			//return -1;
+		}
+	} while (fabs(previous - current) > IMU_TOLERANCE);
 	
-	float turnFraction = DeltaAngle(this->_headingTarget, heading) / 90.0;
+	float turnFraction = DeltaAngle(this->_headingTarget, current) / 90.0;
+	std::cout << "Heading " << current << std::endl;
+	std::cout << "Target " << _headingTarget << std::endl;
 	std::cout << "Turning " << turnFraction * 90.0 << std::endl;
 	ret = this->_motorSystem->drive(TURN_STEPS(turnFraction),
 									TURN_STEPS(turnFraction),

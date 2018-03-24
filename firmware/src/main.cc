@@ -4,6 +4,8 @@
 #include <fstream>
 
 #include "robot.h"
+#include "AlgoRobot.h"
+#include "Direction.h"
 
 int main() {
     //micromouse::I2cDevice myI2C = micromouse::I2cDevice();
@@ -25,31 +27,34 @@ int main() {
 	//usleep(6000000);
 	
 	std::ifstream speedStream;
-	speedStream.open("/home/debian/speed.txt");
-	float driveSpeed, turnSpeed;
-	speedStream >> driveSpeed;
-	speedStream >> turnSpeed;
+	speedStream.open("/home/debian/size.txt");
+	int x, y;
+	speedStream >> x;
+	speedStream >> y;
 	speedStream.close();
-	
-	micromouse::Robot robot;
-	robot.init();
-	robot.enableMotors();
-	
-	while(1) {
-		
-		bool frontWall = false;
-		bool leftWall = false;
-		bool rightWall = false;
-		robot.checkWallFront(&frontWall);
-		robot.checkWallLeft(&leftWall);
-		robot.checkWallRight(&rightWall);
-		
-		if(frontWall) {
-			robot.turn(-1, turnSpeed);
-		}
-		else {
-			robot.pid_drive(180, driveSpeed);
-		}
+//
+//	micromouse::Robot robot;
+//	robot.init();
+//	robot.enableMotors();
+//
+//	while(1) {
+//
+//		bool frontWall = false;
+//		bool leftWall = false;
+//		bool rightWall = false;
+//		robot.checkWallFront(&frontWall);
+//		robot.checkWallLeft(&leftWall);
+//		robot.checkWallRight(&rightWall);
+//
+//		if(frontWall) {
+//			robot.turn(-1, turnSpeed);
+//		}
+//		else {
+//			robot.pid_drive(180, driveSpeed);
+//		}
+
+  algorithm::Robot winslow = algorithm::Robot(true, x, y, algorithm::Direction::NORTH);
+  winslow.Map();
 		
 		/*
 		std::cout << frontWall << leftWall << rightWall << std::endl;
@@ -80,8 +85,6 @@ int main() {
 			}
 		}
 		*/
-	}
-	
-   
+
 	return 0;
 }
