@@ -6,6 +6,7 @@
 
 #include "Direction.h"
 #include "Maze.h"
+#include "robot.h"
 
 namespace algorithm {
 
@@ -34,6 +35,7 @@ class Robot {
   // Can only be called after ComputeShortestPath. Drives the robot to the goal.
   void Run();
  private:
+  micromouse::Robot winslow_;
   algorithm::Maze maze_;
   std::stack<CellPair> neighbors_;
   algorithm::Direction orientation_;
@@ -41,6 +43,8 @@ class Robot {
   bool enable_debugging_;
   int curr_x_;
   int curr_y_;
+  float driveSpeed_;
+  float turnSpeed_;
   // The goal is represented by the box created with these 4 points.
   int top_left_goal_x_;
   int top_left_goal_y_;

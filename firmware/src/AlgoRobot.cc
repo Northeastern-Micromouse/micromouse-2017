@@ -14,11 +14,17 @@ Robot::Robot(bool enable_debugging, int maze_x, int maze_y, Direction orientatio
       enable_debugging_(enable_debugging),
       curr_x_(0),
       curr_y_(0),
+      driveSpeed_(0),
+      turnSpeed_(0),
       top_left_goal_x_(2),
       top_left_goal_y_(2),
       bottom_right_goal_x_(2),
       bottom_right_goal_y_(2) {
-  // No op.
+  winslow_.init();
+  speedStream.open("/home/debian/speed.txt");
+  speedStream >> driveSpeed_;
+  speedStream >> turnSpeed_;
+  speedStream.close();
 }
 
 void Robot::Map() {
@@ -103,11 +109,34 @@ bool Robot::VisitCurrentCell() {
     Log("X: " + std::to_string(cell.x_));
     Log("Y: " + std::to_string(cell.y_));
     Log("--------------------------------------------");
-    // TODO(matt): Read the sensors and update the values. For now just say everything is open.
-    cell.has_right_ = false;
-    cell.has_left_ = false;
-    cell.has_top_ = false;
-    cell.has_bottom_ = false;
+    switch (orientation_) {
+      case Direction::NORTH:
+        winslow_.checkWallFront(cell.has_top_);
+        winslow_.checkWallLeft(cell.has_left_);
+        winslow_.checkWallRight(cell.has_right_);
+        cell.has_bottom_ = false;
+        break;
+      case Direction::SOUTH:
+        winslow_.checkWallFront(cell.has_bottom_);
+        winslow_.checkWallLeft(cell.has_right_);
+        winslow_.checkWallRight(cell.has_left_);
+        cell.has_top_ = false;
+        break;
+      case Direction::EAST:
+        winslow_.checkWallFront(cell.has_right_);
+        winslow_.checkWallLeft(cell.has_top_);
+        winslow_.checkWallRight(cell.has_bottom_);
+        cell.has_left_ = false;
+        break;
+      case Direction::WEST:
+        winslow_.checkWallFront(cell.has_left_);
+        winslow_.checkWallLeft(cell.has_bottom_);
+        winslow_.checkWallRight(cell.has_top_);
+        cell.has_right_ = false;
+        break;
+      default:
+        assert(false);
+    }
 
     for (Cell* c : maze_.GetNeighbors(curr_x_, curr_y_)) {
       if (!c->mapped_) {
@@ -158,7 +187,7 @@ void Robot::Move(Direction dir) {
 
   Log("Moved to cell: " + std::to_string(curr_x_) + "," + std::to_string(curr_y_));
   assert(curr_y_ >= 0 && curr_x_ >= 0 && curr_y_ < maze_.cols() && curr_x_ < maze_.rows());
-  // TODO(matt): Move forward one cell.
+  winslow_.pid_drive(180, driveSpeed_);
 }
 
 void Robot::TurnNorth(){
@@ -246,7 +275,7 @@ void Robot::TurnSouth() {
 }
 
 void Robot::Rotate(int degrees) {
-  // TODO(matt): Implement
+  winslow_.turn(degrees / 90, turnSpeed_);
 }
 
 void Robot::GoBack(Direction dir) {
