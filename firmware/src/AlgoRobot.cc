@@ -27,6 +27,8 @@ Robot::Robot(bool enable_debugging, int maze_x, int maze_y, Direction orientatio
   speedStream.open("/home/debian/speed.txt");
   speedStream >> driveSpeed_;
   speedStream >> turnSpeed_;
+  speedStream >> top_left_goal_x_;
+  speedStream >> top_left_goal_y_;
   speedStream.close();
 }
 

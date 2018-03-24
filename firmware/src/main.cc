@@ -26,12 +26,12 @@ int main() {
 	
 	//usleep(6000000);
 	
-//	std::ifstream speedStream;
-//	speedStream.open("/home/debian/speed.txt");
-//	float driveSpeed, turnSpeed;
-//	speedStream >> driveSpeed;
-//	speedStream >> turnSpeed;
-//	speedStream.close();
+	std::ifstream speedStream;
+	speedStream.open("/home/debian/size.txt");
+	int x, y;
+	speedStream >> x;
+	speedStream >> y;
+	speedStream.close();
 //
 //	micromouse::Robot robot;
 //	robot.init();
@@ -53,7 +53,7 @@ int main() {
 //			robot.pid_drive(180, driveSpeed);
 //		}
 
-  algorithm::Robot winslow = algorithm::Robot(true, 5, 5, algorithm::Direction::NORTH);
+  algorithm::Robot winslow = algorithm::Robot(true, x, y, algorithm::Direction::NORTH);
   winslow.Map();
 		
 		/*
@@ -85,8 +85,6 @@ int main() {
 			}
 		}
 		*/
-	}
-	
-   
+
 	return 0;
 }
