@@ -28,10 +28,6 @@ public:
 				bool directionLeft,
 				bool directionRight,
 				unsigned int timeout);
-	int writePRU(int data);
-	int readPRU(int* data);
-	int requestedError(bool* result);
-	int finished(bool* result);
 	
 private:
 	std::string _pruFile;

@@ -1,6 +1,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <iostream>
+#include <fstream>
 
 #include "robot.h"
 
@@ -21,15 +22,64 @@ int main() {
 	std::cout << "Set: " << leds.setIntensity(0, 4095) << std::endl;
 	*/
 	
+	//usleep(6000000);
+	
+	std::ifstream speedStream;
+	speedStream.open("/home/debian/speed.txt");
+	float driveSpeed, turnSpeed;
+	speedStream >> driveSpeed;
+	speedStream >> turnSpeed;
+	speedStream.close();
 	
 	micromouse::Robot robot;
 	robot.init();
+	robot.enableMotors();
 	
 	while(1) {
-		robot.turn(1, 100);
-		usleep(1000000);
-		robot.pid_drive(180, 100);
-		usleep(1000000);
+		
+		bool frontWall = false;
+		bool leftWall = false;
+		bool rightWall = false;
+		robot.checkWallFront(&frontWall);
+		robot.checkWallLeft(&leftWall);
+		robot.checkWallRight(&rightWall);
+		
+		if(frontWall) {
+			robot.turn(-1, turnSpeed);
+		}
+		else {
+			robot.pid_drive(180, driveSpeed);
+		}
+		
+		/*
+		std::cout << frontWall << leftWall << rightWall << std::endl;
+		
+		if(frontWall && leftWall && rightWall) {
+			robot.turn(2, turnSpeed);
+		}
+		else {
+			int i;
+			bool wallPicked = false;
+			while(!wallPicked) {
+				i = rand() % 3;
+				switch(i) {
+					case 0: wallPicked = !frontWall;
+					case 1: wallPicked = !leftWall;
+					case 2: wallPicked = !rightWall;
+				}
+			}
+			switch(i) {
+				case 0:
+					robot.pid_drive(180, driveSpeed);
+				case 1:
+					robot.turn(-1, turnSpeed);
+					robot.pid_drive(180, driveSpeed);
+				case 2:
+					robot.turn(1, turnSpeed);
+					robot.pid_drive(180, driveSpeed);
+			}
+		}
+		*/
 	}
 	
    

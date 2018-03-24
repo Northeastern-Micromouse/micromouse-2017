@@ -47,20 +47,20 @@ int MotorSystem::drive(unsigned int stepsLeft,
 							(unsigned char)((periodRight & 0xFF000000) >> 24)	};
 							
 	if(directionLeft) {
-		std::cout << "left forward" << !MOTOR_INVERT_LEFT << std::endl;
+		//std::cout << "left forward" << !MOTOR_INVERT_LEFT << std::endl;
 		this->_leftDirPin->setValue(!MOTOR_INVERT_LEFT);
 	}
 	else {
-		std::cout << "left backward" << MOTOR_INVERT_LEFT << std::endl;
+		//std::cout << "left backward" << MOTOR_INVERT_LEFT << std::endl;
 		this->_leftDirPin->setValue(MOTOR_INVERT_LEFT);
 	}
 	
 	if(directionRight) {
-		std::cout << "right forward" << !MOTOR_INVERT_RIGHT << std::endl;
+		//std::cout << "right forward" << !MOTOR_INVERT_RIGHT << std::endl;
 		this->_rightDirPin->setValue(!MOTOR_INVERT_RIGHT);
 	}
 	else {
-		std::cout << "right backward" << MOTOR_INVERT_RIGHT << std::endl;
+		//std::cout << "right backward" << MOTOR_INVERT_RIGHT << std::endl;
 		this->_rightDirPin->setValue(MOTOR_INVERT_RIGHT);
 	}
 	
@@ -89,34 +89,6 @@ int MotorSystem::drive(unsigned int stepsLeft,
 	
 	close(pruFileFd);
 	return 1;
-}
-
-int MotorSystem::writePRU(int data) {
-	int pruFileFd = open(_pruFile.c_str(), O_RDWR);
-	int retval = write(pruFileFd, &data, 1) != 1;
-	close(pruFileFd);
-	return retval;
-}
-
-int MotorSystem::readPRU(int* data) {
-	int pruFileFd = open(_pruFile.c_str(), O_RDWR);
-	int retval = read(pruFileFd, data, 1) != 1;
-	close(pruFileFd);
-	return retval;
-}
-
-int MotorSystem::requestedError(bool* result) {
-	int data;
-	int error = this->readPRU(&data);
-	*result = (data == 'E');
-	return error;
-}
-
-int MotorSystem::finished(bool* result) {
-	int data;
-	int error = this->readPRU(&data);
-	*result = (data == 'K');
-	return error;
 }
 
 }

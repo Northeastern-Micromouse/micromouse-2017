@@ -20,7 +20,7 @@ public:
     int setAddress(unsigned char address);
     int sendByte(char addr, char reg, char data);
     int readByte(char addr, char reg, char* data);
-    int readBytes(char addr, char reg, size_t size, char** data);
+    int readBytes(char addr, char reg, size_t size, char* data);
 
 private:
     int i2cFile;

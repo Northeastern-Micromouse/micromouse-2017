@@ -68,7 +68,7 @@ int I2cDevice::readByte(char addr, char reg, char* data) {
 	return 0;
 }
 
-int I2cDevice::readBytes(char addr, char reg, size_t size, char** data) {
+int I2cDevice::readBytes(char addr, char reg, size_t size, char* data) {
     this->write_buf[0] = reg;
     this->setAddress(addr);
     //std::cout << "write reg value " << std::hex << (int)reg << std::endl;
@@ -79,11 +79,10 @@ int I2cDevice::readBytes(char addr, char reg, size_t size, char** data) {
 
     //std::cout << "read bytes" << std::endl;
     this->setAddress(addr);
-    if ((ret = read(this->i2cFile, this->read_buf, size)) != (int)size) {
+    if ((ret = read(this->i2cFile, data, size)) != (int)size) {
         return ret;
     }
 
-    *data = this->read_buf;
 	return 0;
 } 
 
