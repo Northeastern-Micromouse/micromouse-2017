@@ -37,9 +37,15 @@ class Robot {
   algorithm::Maze maze_;
   std::stack<CellPair> neighbors_;
   algorithm::Direction orientation_;
+  std::vector<Direction> path_;
   bool enable_debugging_;
   int curr_x_;
   int curr_y_;
+  // The goal is represented by the box created with these 4 points.
+  int top_left_goal_x_;
+  int top_left_goal_y_;
+  int bottom_right_goal_x_;
+  int bottom_right_goal_y_;
 
   void Log(const std::string& log);
   // Returns true if any items were added to the neighbors.
@@ -68,6 +74,17 @@ class Robot {
   // Returns the direction the robot would need to move in order to get to the desired cell. The cell should only be
   // only cell away from the current location of the robot.
   Direction GetDirection(Cell* cell);
+
+  Direction GetDirection(Cell* start, Cell* end);
+
+  std::vector<Direction> GetPath(Cell* start, Cell* end);
+
+  // Returns true if the robot is inside the goal.
+  bool IsInsideGoal();
+  // Returns true if the two points are inside the goal.
+  bool IsInsideGoal(int x, int y);
+
+  void PrintPath(const std::vector<Direction>& path);
 };
 
 }

@@ -14,6 +14,8 @@ Cell::Cell(int x, int y)
   : x_(x),
     y_(y),
     visited_(false),
+    mapped_(false),
+    parent_(nullptr),
     has_left_(true),
     has_right_(true),
     has_top_(true),

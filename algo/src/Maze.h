@@ -13,10 +13,13 @@ class Maze {
 
   void Clear();
 
+  void ClearVisitedAndParent();
+
   void print();
 
   Cell& get(int x, int y);
 
+  // Returns all of the neighbors of the given cell.
   std::vector<Cell*> GetNeighbors(int x, int y);
 
   // Returns the number of rows in the maze.

@@ -18,29 +18,29 @@ Maze::Maze(bool enable_debugging_, int rows, int cols)
       cells_[ii][jj].Configure(ii, jj);
     }
   }
-  std::ifstream myfile("maze.txt");
- 
-  std::string buf;
-  std::string space("space");
-
-  for (int jj = 0; jj < rows_; jj++) {
-    for (int ii = 0; ii < cols_; ii++) {
-        myfile >> buf;
-      if (buf == space)
-        cells_[jj][ii].has_top_ = false;
-        myfile >> buf;
-      if (buf == space)
-        cells_[jj][ii].has_bottom_ = false;
-        myfile >> buf;
-      if (buf == space)
-        cells_[jj][ii].has_left_ = false;
-        myfile >> buf;
-      if (buf == space)
-        cells_[jj][ii].has_right_ = false;
-    }
-  }
-
-  this->print();
+//  std::ifstream myfile("maze.txt");
+//
+//  std::string buf;
+//  std::string space("space");
+//
+//  for (int jj = 0; jj < rows_; jj++) {
+//    for (int ii = 0; ii < cols_; ii++) {
+//        myfile >> buf;
+//      if (buf == space)
+//        cells_[jj][ii].has_top_ = false;
+//        myfile >> buf;
+//      if (buf == space)
+//        cells_[jj][ii].has_bottom_ = false;
+//        myfile >> buf;
+//      if (buf == space)
+//        cells_[jj][ii].has_left_ = false;
+//        myfile >> buf;
+//      if (buf == space)
+//        cells_[jj][ii].has_right_ = false;
+//    }
+//  }
+//
+//  this->print();
 
   assert(cells_.size() == rows_ && cells_[0].size() == cols_);
 }
@@ -49,23 +49,16 @@ void Maze::Clear() {
   // No op.
 }
 
+void Maze::ClearVisitedAndParent(){
+  for (auto& v : cells_) {
+    for (auto& cell : v) {
+      cell.visited_ = false;
+      cell.parent_ = nullptr;
+    }
+  }
+}
+
 void Maze::print() {
-/*
-  for (int jj = 0; jj < rows_; jj++) {
-    for (int ii = 0; ii < cols_; ii++) {
-    if (cells_[jj][ii].has_top_ == false)
-      std::cout << "u";
-    if (cells_[jj][ii].has_bottom_ == false)
-      std::cout << "d";
-    if (cells_[jj][ii].has_left_ == false)
-      std::cout << "l";
-    if (cells_[jj][ii].has_right_ == false)
-      std::cout << "r";
-    std::cout << " ";
-  }
-  std::cout << std::endl;
-  }
-*/
   for (int jj = 0; jj < rows_; jj++) {
     for (int ii = 0; ii < cols_; ii++) {
       std::cout << "#";

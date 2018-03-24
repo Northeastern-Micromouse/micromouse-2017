@@ -13,7 +13,11 @@ Robot::Robot(bool enable_debugging, int maze_x, int maze_y, Direction orientatio
       orientation_(orientation),
       enable_debugging_(enable_debugging),
       curr_x_(0),
-      curr_y_(0) {
+      curr_y_(0),
+      top_left_goal_x_(2),
+      top_left_goal_y_(2),
+      bottom_right_goal_x_(2),
+      bottom_right_goal_y_(2) {
   // No op.
 }
 
@@ -31,10 +35,14 @@ void Robot::Map() {
     Log("Added from cell: " + std::to_string(cell.second_.x_) + "," + std::to_string(cell.second_.y_));
     neighbors_.pop();
     // Move to where you were when you put the cell on the stack.
-    Direction dir = GetDirection(&cell.second_);
-    Move(dir);
+    std::vector<Direction> path = GetPath(&maze_.get(curr_x_, curr_y_), &cell.second_);
+    PrintPath(path);
+    for (auto direction : path) {
+      Move(direction);
+    }
+
     // Move to the cell
-    dir = GetDirection(cell.first_);
+    Direction dir = GetDirection(cell.first_);
     Move(dir);
     if (!VisitCurrentCell()) {
       GoBack(dir);
@@ -44,29 +52,40 @@ void Robot::Map() {
   Log("Done mapping the maze. At location: " + std::to_string(curr_x_) + "," = std::to_string(curr_y_));
 }
 
-Direction Robot::GetDirection(Cell* cell) {
-  if (curr_x_ == cell->x_ && curr_y_ == cell->y_ + 1) {
+Direction Robot::GetDirection(Cell* start, Cell* end) {
+  assert(start != nullptr);
+  assert(end != nullptr);
+  if (start->x_ == end->x_ && start->y_ == end->y_ + 1) {
     return Direction::SOUTH;
-  } else if (curr_x_ == cell->x_ && curr_y_ == cell->y_ - 1) {
+  } else if (start->x_ == end->x_ && start->y_ == end->y_ - 1) {
     return Direction::NORTH;
-  } else if (curr_x_ == cell->x_ + 1 && curr_y_ == cell->y_) {
+  } else if (start->x_ == end->x_ + 1 && start->y_ == end->y_) {
     return Direction::WEST;
-  } else if (curr_x_ == cell->x_ - 1 && curr_y_ == cell->y_) {
+  } else if (start->x_ == end->x_ - 1 && start->y_ == end->y_) {
     return Direction::EAST;
-  } else if (curr_x_ == cell->x_ && curr_y_ == cell->y_) {
+  } else if (start->x_ == end->x_ && start->y_ == end->y_) {
     return Direction::NONE;
   }
-  Log(std::to_string(curr_x_) + "," + std::to_string(curr_y_) + "     " + std::to_string(cell->x_) + "," + std::to_string((cell->y_)));
+  std::cout << start->x_ << "," << start->y_ << "     " << end->x_ << "," << end->y_ << std::endl;
   assert(false);
+}
+
+Direction Robot::GetDirection(Cell* cell) {
+  return GetDirection(&maze_.get(curr_x_, curr_y_), cell);
 }
 
 void Robot::ComputeShortestPath() {
   Log("Computing the shortest path");
-
+  // TODO(matt): Fix this hack.
+  path_ = GetPath(&maze_.get(0,0), &maze_.get(top_left_goal_x_, top_left_goal_y_));
 }
 
 void Robot::Run() {
   Log("Running the robot :)");
+  while (!path_.empty()) {
+    Move(path_.back());
+    path_.pop_back();
+  }
 }
 
 void Robot::Log(const std::string& log) {
@@ -79,7 +98,7 @@ bool Robot::VisitCurrentCell() {
   Cell& cell = maze_.get(curr_x_, curr_y_);
   bool should_move_forward = false;
   // Only visit a cell if it is not visited.
-  if (!cell.visited_) {
+  if (!cell.mapped_) {
     Log("--------------- Visit Cell ---------------");
     Log("X: " + std::to_string(cell.x_));
     Log("Y: " + std::to_string(cell.y_));
@@ -91,13 +110,13 @@ bool Robot::VisitCurrentCell() {
     cell.has_bottom_ = false;
 
     for (Cell* c : maze_.GetNeighbors(curr_x_, curr_y_)) {
-      if (!c->visited_) {
+      if (!c->mapped_) {
         neighbors_.push(CellPair(c, Cell(curr_x_, curr_y_)));
         should_move_forward = true;
       }
     }
 
-    cell.visited_ = true;
+    cell.mapped_ = true;
   } else {
     std::stringstream ss;
     ss << "Trying to visit cell: ";
@@ -228,11 +247,9 @@ void Robot::TurnSouth() {
 
 void Robot::Rotate(int degrees) {
   // TODO(matt): Implement
-  Log("Rotating " + std::to_string(degrees) + " degress");
 }
 
 void Robot::GoBack(Direction dir) {
-  Log("Go back");
   switch (dir) {
     case Direction::NORTH:
       Move(Direction::SOUTH);
@@ -249,6 +266,59 @@ void Robot::GoBack(Direction dir) {
     case Direction::NONE:
       // No op.
       return;
+  }
+}
+
+std::vector<Direction> Robot::GetPath(Cell* start, Cell* end) {
+  Cell* curr = start;
+  std::vector<Direction> path;
+  path.push_back(Direction::NONE);
+  std::stack<Cell*> cells_to_visit;
+
+  while (curr->x_ != end->x_ || curr->y_ != end->y_) {
+    // Get the reachable neighbors of this cell and add them to the stack.
+    std::vector<Cell*> neighbors = maze_.GetNeighbors(curr->x_, curr->y_);
+    if (!curr->visited_) {
+      for (Cell* neighbor : neighbors) {
+        if (!neighbor->visited_) {
+          neighbor->parent_ = curr;
+          cells_to_visit.push(neighbor);
+        }
+      }
+    }
+    curr->visited_ = true;
+    // Set the parent and advance curr
+    curr = cells_to_visit.top();
+    cells_to_visit.pop();
+    assert(curr != nullptr && end != nullptr);
+  }
+
+  end->parent_ = curr;
+
+  // Build the path
+  curr = end;
+  while (curr->x_ != start->x_ || curr->y_ != start->y_) {
+    path.insert(path.begin(), GetDirection(curr->parent_, curr));
+    curr = curr->parent_;
+  }
+
+  // Reset shit.
+  maze_.ClearVisitedAndParent();
+  return path;
+}
+
+bool Robot::IsInsideGoal(int x, int y) {
+  return (x >= top_left_goal_x_ && x <= bottom_right_goal_x_)
+         && (y <= top_left_goal_y_ && y >= bottom_right_goal_y_);
+}
+
+bool Robot::IsInsideGoal() {
+  return IsInsideGoal(curr_x_, curr_y_);
+}
+
+void Robot::PrintPath(const std::vector<Direction>& path) {
+  for (auto dir : path) {
+    std::cout << dir << std::endl;
   }
 }
 
