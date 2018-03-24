@@ -3,6 +3,7 @@
 #include <cassert>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 
 namespace algorithm {
 
@@ -21,6 +22,8 @@ Robot::Robot(bool enable_debugging, int maze_x, int maze_y, Direction orientatio
       bottom_right_goal_x_(2),
       bottom_right_goal_y_(2) {
   winslow_.init();
+  winslow_.enableMotors();
+  std::ifstream speedStream;
   speedStream.open("/home/debian/speed.txt");
   speedStream >> driveSpeed_;
   speedStream >> turnSpeed_;
@@ -111,27 +114,27 @@ bool Robot::VisitCurrentCell() {
     Log("--------------------------------------------");
     switch (orientation_) {
       case Direction::NORTH:
-        winslow_.checkWallFront(cell.has_top_);
-        winslow_.checkWallLeft(cell.has_left_);
-        winslow_.checkWallRight(cell.has_right_);
+        winslow_.checkWallFront(&cell.has_top_);
+        winslow_.checkWallLeft(&cell.has_left_);
+        winslow_.checkWallRight(&cell.has_right_);
         cell.has_bottom_ = false;
         break;
       case Direction::SOUTH:
-        winslow_.checkWallFront(cell.has_bottom_);
-        winslow_.checkWallLeft(cell.has_right_);
-        winslow_.checkWallRight(cell.has_left_);
+        winslow_.checkWallFront(&cell.has_bottom_);
+        winslow_.checkWallLeft(&cell.has_right_);
+        winslow_.checkWallRight(&cell.has_left_);
         cell.has_top_ = false;
         break;
       case Direction::EAST:
-        winslow_.checkWallFront(cell.has_right_);
-        winslow_.checkWallLeft(cell.has_top_);
-        winslow_.checkWallRight(cell.has_bottom_);
+        winslow_.checkWallFront(&cell.has_right_);
+        winslow_.checkWallLeft(&cell.has_top_);
+        winslow_.checkWallRight(&cell.has_bottom_);
         cell.has_left_ = false;
         break;
       case Direction::WEST:
-        winslow_.checkWallFront(cell.has_left_);
-        winslow_.checkWallLeft(cell.has_bottom_);
-        winslow_.checkWallRight(cell.has_top_);
+        winslow_.checkWallFront(&cell.has_left_);
+        winslow_.checkWallLeft(&cell.has_bottom_);
+        winslow_.checkWallRight(&cell.has_top_);
         cell.has_right_ = false;
         break;
       default:
