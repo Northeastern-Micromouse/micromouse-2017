@@ -34,6 +34,8 @@
 #define PROPER_SIDE_WALL_DISTANCE	30
 #define WALL_CORRECT_SPEED			100
 
+#define IMU_TOLERANCE				1
+
 #define HEADING_MEASUREMENTS 5
 
 namespace micromouse {

@@ -45,17 +45,26 @@ void Robot::Map() {
     Log("Got the cell: " + std::to_string(cell.first_->x_) + "," + std::to_string(cell.first_->y_));
     Log("Added from cell: " + std::to_string(cell.second_.x_) + "," + std::to_string(cell.second_.y_));
     neighbors_.pop();
+	
+	if (cell.first_->mapped_) {
+		Log("Continue");
+		continue;
+	}
     // Move to where you were when you put the cell on the stack.
     std::vector<Direction> path = GetPath(&maze_.get(curr_x_, curr_y_), &cell.second_);
     PrintPath(path);
     for (auto direction : path) {
+		std::cout << direction << std::endl;
       Move(direction);
     }
 
     // Move to the cell
+	Log("Move to cell");
     Direction dir = GetDirection(cell.first_);
     Move(dir);
+	Log("visit");
     if (!VisitCurrentCell()) {
+		Log("Go Back");
       GoBack(dir);
     }
   }
@@ -74,7 +83,8 @@ Direction Robot::GetDirection(Cell* start, Cell* end) {
     return Direction::WEST;
   } else if (start->x_ == end->x_ - 1 && start->y_ == end->y_) {
     return Direction::EAST;
-  } else if (start->x_ == end->x_ && start->y_ == end->y_) {
+  } else 
+	  if (start->x_ == end->x_ && start->y_ == end->y_) {
     return Direction::NONE;
   }
   std::cout << start->x_ << "," << start->y_ << "     " << end->x_ << "," << end->y_ << std::endl;
@@ -145,9 +155,12 @@ bool Robot::VisitCurrentCell() {
 
     for (Cell* c : maze_.GetNeighbors(curr_x_, curr_y_)) {
       if (!c->mapped_) {
+		  Log("Add " + std::to_string(c->x_) + "," + std::to_string(c->y_));
         neighbors_.push(CellPair(c, Cell(curr_x_, curr_y_)));
         should_move_forward = true;
-      }
+      } else {
+		  Log("Do not add " + std::to_string(c->x_) + "," + std::to_string(c->y_));
+	  }
     }
 
     cell.mapped_ = true;
@@ -225,10 +238,10 @@ void Robot::TurnEast() {
       // No op.
       break;
     case Direction::WEST:
-      Rotate(-90);
+      Rotate(180);
       break;
     case Direction::SOUTH:
-      Rotate(180);
+      Rotate(-90);
       break;
     case Direction::NONE:
       // No op.
@@ -264,10 +277,10 @@ void Robot::TurnSouth() {
       Rotate(180);
       break;
     case Direction::EAST:
-      Rotate(-90);
+      Rotate(90);
       break;
     case Direction::WEST:
-      Rotate(90);
+      Rotate(-90);
       break;
     case Direction::SOUTH:
       // No op.

@@ -105,18 +105,22 @@ std::vector<Cell*> Maze::GetNeighbors(int x, int y) {
   assert(x < rows_ && y < cols_ && y >= 0 && x >= 0);
   // See if there is a cell above it.
   if (y + 1 < cols_ && !cells_[x][y].has_top_) {
+	  Log("Top neighbor");
     neighbors.push_back(&cells_[x][y + 1]);
   }
   // Check if there is a cell below it.
   if (y - 1 >= 0 && !cells_[x][y].has_bottom_) {
+	  Log("Bottom Neighbor");
     neighbors.push_back(&cells_[x][y - 1]);
   }
   // Check if there is a cell left of it.
   if (x - 1 >= 0 && !cells_[x][y].has_left_) {
+	  Log("Left neighbor");
     neighbors.push_back(&cells_[x - 1][y]);
   }
   // Check if there is a cell right of it.
   if (x + 1 < rows_ && !cells_[x][y].has_right_) {
+	  Log("Right neighbor");
     neighbors.push_back(&cells_[x + 1][y]);
   }
 
