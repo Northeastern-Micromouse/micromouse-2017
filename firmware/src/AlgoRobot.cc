@@ -46,10 +46,9 @@ void Robot::Map() {
     Log("Added from cell: " + std::to_string(cell.second_.x_) + "," + std::to_string(cell.second_.y_));
     neighbors_.pop();
 	
-	if (cell.first_->mapped_) {
-		Log("Continue");
-		continue;
-	}
+
+
+	
     // Move to where you were when you put the cell on the stack.
     std::vector<Direction> path = GetPath(&maze_.get(curr_x_, curr_y_), &cell.second_);
     PrintPath(path);

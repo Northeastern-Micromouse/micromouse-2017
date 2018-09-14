@@ -101,8 +101,15 @@ int Robot::init() {
 	std::cout << this->_driveKd << std::endl;
 	std::cout << "Loaded heading coefficient: " << this->_driveHeadingCoefficient << std::endl;
 	
+	float distance = 1000;
+	while(distance > 50) {
+		getFrontDistance(&distance);
+	}
+	
 	this->_led1 = new micromouse::RgbLedDevice(64, 47, 65);
 	this->_led1->setRgb(0, 0, 1);
+	
+	usleep(5000000);
 }
 
 void Robot::enableMotors() {
@@ -326,21 +333,25 @@ int Robot::turn(int amt, float speed) {
 		}
 	} while (fabs(previous - current) > IMU_TOLERANCE);
 	
-	float turnFraction = DeltaAngle(this->_headingTarget, current) / 90.0;
-	std::cout << "Heading " << current << std::endl;
-	std::cout << "Target " << _headingTarget << std::endl;
-	std::cout << "Turning " << turnFraction * 90.0 << std::endl;
-	ret = this->_motorSystem->drive(TURN_STEPS(turnFraction),
-									TURN_STEPS(turnFraction),
-									stepSpeed * 4,
-									stepSpeed * 4,
-									((amt > 0) ? MOTOR_FORWARD : MOTOR_BACKWARD),
-									((amt > 0) ? MOTOR_BACKWARD : MOTOR_FORWARD),
-									5000);
-	if(ret) {
-		std::cout << "Error turning." << std::endl;
-		return ret;
+	float turnFraction;
+	do {
+		turnFraction = DeltaAngle(this->_headingTarget, current) / 90.0;
+		std::cout << "Heading " << current << std::endl;
+		std::cout << "Target " << _headingTarget << std::endl;
+		std::cout << "Turning " << turnFraction * 90.0 << std::endl;
+		ret = this->_motorSystem->drive(TURN_STEPS(turnFraction),
+										TURN_STEPS(turnFraction),
+										stepSpeed * 4,
+										stepSpeed * 4,
+										((amt > 0) ? MOTOR_FORWARD : MOTOR_BACKWARD),
+										((amt > 0) ? MOTOR_BACKWARD : MOTOR_FORWARD),
+										5000);
+		if(ret) {
+			std::cout << "Error turning." << std::endl;
+			return ret;
+		}
 	}
+	while(fabs(turnFraction) < 0.01);
 	
 	usleep(500000);
 	
