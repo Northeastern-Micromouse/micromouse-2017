@@ -12,6 +12,9 @@
 #include "PID.h"
 #include "reflSensor.h"
 #include "imu.h"
+#include "i2cDevice.h"
+#include "Cell.h"
+#include "Direction.h"
 
 // PID Gains for driving
 #define PID_GAINS_PATH "/home/debian/pidgains.txt"
@@ -29,7 +32,7 @@
 #define TURN_LENGTH				(M_PI/2.0 * ROBOT_WIDTH/2.0)
 #define TURN_STEPS(n)			(int)(fabs(n) * TURN_LENGTH / DISTANCE_PER_STEP)
 
-#define WALL_THRESHOLD				80.0 
+#define WALL_THRESHOLD				80.0
 #define PROPER_FRONT_WALL_DISTANCE	30
 #define PROPER_SIDE_WALL_DISTANCE	30
 #define WALL_CORRECT_SPEED			100
@@ -39,10 +42,14 @@
 #define HEADING_MEASUREMENTS 5
 
 namespace micromouse {
-	
+
+using algorithm::Direction;
+
+
 class Robot {
-	
+
 public:
+	Robot(bool enable_debugging, int maze_x, int maze_y, Direction orientation);
 	int init();
 	void enableMotors();
 	void disableMotors();
@@ -57,30 +64,32 @@ public:
 	int getHeading(float* heading);
 	int frontWallCorrect();
 	void setLED1(int r, int g, int b);
+	int setxy(int x, int y);
+	int setorientation(algorithm::Direction orientation);
 
 private:
 	micromouse::RgbLedDevice* _led1;
 	micromouse::RgbLedDevice* _led2;
-	
+
 	micromouse::MotorSystem* _motorSystem;
 	float _driveKp;
 	float _driveKi;
 	float _driveKd;
-	
+
 	micromouse::ReflSensor* _leftFrontFacing;
 	micromouse::ReflSensor* _rightFrontFacing;
 	micromouse::ReflSensor* _frontLeftFacing;
 	micromouse::ReflSensor* _rearLeftFacing;
 	micromouse::ReflSensor* _frontRightFacing;
 	micromouse::ReflSensor* _rearRightFacing;
-	
+
 	//micromouse::IMU* _imu;
 	float _headingTarget;
 	float _driveHeadingCoefficient;
-	
+
 };
-	
-	
+
+
 }
 
 #endif
