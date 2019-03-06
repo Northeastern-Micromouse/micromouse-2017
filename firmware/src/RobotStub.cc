@@ -16,11 +16,20 @@ Robot::Robot(bool enable_debugging, int maze_x, int maze_y, Direction orientatio
 }
 
 int Robot::pid_drive(float distance, float speed) {
+  //printf("robot at orientation: ");
   switch(orientation_) {
-    case Direction::NORTH: cur_y_ = cur_y_ - 1;
-    case Direction::SOUTH: cur_y_ = cur_y_ + 1;
-    case Direction::EAST: cur_x_ = cur_x_ + 1;
-    case Direction::WEST: cur_x_ = cur_x_ - 1;
+    case Direction::NORTH:
+      cur_y_ = cur_y_ - 1;
+      break;
+    case Direction::SOUTH:
+      cur_y_ = cur_y_ + 1;
+      break;
+    case Direction::EAST:
+      cur_x_ = cur_x_ + 1;
+      break;
+    case Direction::WEST:
+      cur_x_ = cur_x_ - 1;
+      break;
   }
 
   return 0;
@@ -32,19 +41,19 @@ int Robot::setxy(int x, int y) {
 }
 
 int Robot::setorientation(algorithm::Direction orientation) {
-  printf("new orientatino: ");
+  //printf("new orientatino: ");
   switch(orientation) {
     case Direction::NORTH:
-      printf("north\n");
+      //printf("north\n");
       break;
     case Direction::SOUTH:
-      printf("south\n");
+      //printf("south\n");
       break;
     case Direction::EAST:
-      printf("east\n");
+      //printf("east\n");
       break;
     case Direction::WEST:
-      printf("west\n");
+      //printf("west\n");
       break;
   }
   orientation_ = orientation;
@@ -108,9 +117,9 @@ int Robot::turn(int amt, float speed) {
 }
 
 int Robot::checkWallFront(bool* result) {
-  printf("row: %d, col: %d\n", cur_y_, cur_x_);
+  //printf("row: %d, col: %d\n", cur_y_, cur_x_);
   auto cell = maze_.get(cur_x_, cur_y_);
-  printf("robot code - top: %d bot: %d left: %d right: %d\n", !cell.has_top_, !cell.has_bottom_, !cell.has_left_, !cell.has_right_);
+  //printf("robot code - top: %d bot: %d left: %d right: %d\n", !cell.has_top_, !cell.has_bottom_, !cell.has_left_, !cell.has_right_);
 
   switch(orientation_) {
     case Direction::NORTH:
@@ -120,7 +129,7 @@ int Robot::checkWallFront(bool* result) {
       *result= cell.has_bottom_;
       break;
     case Direction::EAST:
-      printf("checking front wall: %d\n", cell.has_right_);
+      //printf("checking front wall: %d\n", cell.has_right_);
       *result= cell.has_right_;
       break;
     case Direction::WEST:
@@ -139,7 +148,7 @@ int Robot::checkWallRight(bool* result) {
       *result= maze_.get(cur_x_, cur_y_).has_left_;
       break;
     case Direction::EAST:
-      printf("checking right wall: %d\n", maze_.get(cur_x_, cur_y_).has_bottom_);
+      //printf("checking right wall: %d\n", maze_.get(cur_x_, cur_y_).has_bottom_);
       *result= maze_.get(cur_x_, cur_y_).has_bottom_;
       break;
     case Direction::WEST:
@@ -158,7 +167,7 @@ int Robot::checkWallLeft(bool* result) {
       *result= maze_.get(cur_x_, cur_y_).has_right_;
       break;
     case Direction::EAST:
-      printf("checking left wall: %d\n", maze_.get(cur_x_, cur_y_).has_top_);
+      //printf("checking left wall: %d\n", maze_.get(cur_x_, cur_y_).has_top_);
       *result= maze_.get(cur_x_, cur_y_).has_top_;
       break;
     case Direction::WEST:

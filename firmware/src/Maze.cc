@@ -128,23 +128,23 @@ void Maze::ReadFromFile() {
 std::vector<Cell*> Maze::GetNeighbors(int x, int y) {
   std::vector<Cell*> ret;
   Cell cell = cells_[y][x];
-  Log("getting neighbors for row: " + std::to_string(y)
-      + " col: " + std::to_string(x));
+  //Log("getting neighbors for row: " + std::to_string(y)
+  //    + " col: " + std::to_string(x));
 
   if (!cell.has_top_) {
-    Log("has top");
+  //  Log("has top");
     ret.push_back(&cells_[y - 1][x]);
   }
   if (!cell.has_bottom_) {
-    Log("has bot");
+  //  Log("has bot");
     ret.push_back(&cells_[y + 1][x]);
   }
   if (!cell.has_left_) {
-    Log("has left");
+  //  Log("has left");
     ret.push_back(&cells_[y][x - 1]);
   }
   if (!cell.has_right_) {
-    Log("has right");
+  //  Log("has right");
     ret.push_back(&cells_[y][x + 1]);
   }
   return ret;

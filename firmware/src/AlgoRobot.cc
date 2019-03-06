@@ -53,13 +53,15 @@ void Robot::Map() {
   cells_to_visit.push(tmppath);
 
   while(!cells_to_visit.empty()) {
-  //for (int i = 0; i < 100; i++) {
-    maze_.print();
+  //for (int i = 0; i < 10; i++) {
+    //maze_.print();
     std::vector<Cell*> tmppath = cells_to_visit.top();
     cells_to_visit.pop();
     curr = tmppath.back();
+    //printf("x: %d y: %d\n", curr->x_, curr->y_);
     //TODO: actually move
-    printf("moving\n");
+    //TODO: orientation should be set by moving
+    /*
     curr_x_ = curr->x_;
     curr_y_ = curr->y_;
     winslow_.setxy(curr_x_, curr_y_);
@@ -70,16 +72,17 @@ void Robot::Map() {
       printf("one elem path\n");
       orientation_ = Direction::SOUTH;
       winslow_.setorientation(Direction::SOUTH);
-    }
+    }*/
     //TODO dont hardcode this
+    moveToPath(tmppath);
     if (curr->x_ == 15 && curr->y_ == 15) {
       for (int i = 0; i < tmppath.size(); i++) {
-        printf("(row %d, col %d) -> ", tmppath[i]->x_, tmppath[i]->y_);
+        printf("(row %d, col %d) ->", tmppath[i]->x_, tmppath[i]->y_);
       }
+      printf("\nstack size: %d\n", cells_to_visit.size());
     }
-    printf("visiting curr cell\n");
+    //printf("visiting curr cell\n");
     VisitCurrentCell();
-    //TODO: orientation should be set by moving
     for (auto neighbor: maze_.GetNeighbors(curr->x_, curr->y_)) {
       if (!inPath(tmppath, neighbor)) {
         std::vector<Cell*> newpath = tmppath;
@@ -93,19 +96,19 @@ void Robot::Map() {
 
 Direction Robot::GetDirection(Cell* start, Cell* end) {
   if (start->x_ == end->x_ && start->y_ + 1 == end->y_) {
-    printf("returning south\n");
+    //printf("returning south\n");
     return Direction::SOUTH;
   } else if (start->x_ == end->x_ && start->y_ == end->y_ + 1) {
-    printf("returning north\n");
+    //printf("returning north\n");
     return Direction::NORTH;
   } else if (start->x_ + 1 == end->x_ && start->y_ == end->y_) {
-    printf("returning east\n");
+    //printf("returning east\n");
     return Direction::EAST;
   } else if (start->x_ == end->x_ + 1 && start->y_ == end->y_) {
-    printf("returning west\n");
+    //printf("returning west\n");
     return Direction::WEST;
   }
-  printf("wtf? %d %d %d %d\n", start->x_, start->y_, end->x_, end->y_);
+  //printf("wtf? %d %d %d %d\n", start->x_, start->y_, end->x_, end->y_);
   return Direction::NONE;
 }
 
@@ -198,7 +201,7 @@ void Robot::Move(Direction dir) {
     case Direction::NORTH:
       Log("Move north");
       TurnNorth();
-      curr_y_ += 1;
+      curr_y_ -= 1;
       break;
     case Direction::EAST:
       Log("Move east");
@@ -213,7 +216,7 @@ void Robot::Move(Direction dir) {
     case Direction::SOUTH:
       Log("Move south");
       TurnSouth();
-      curr_y_ -= 1;
+      curr_y_ += 1;
       break;
     case Direction::NONE:
       Log("Do not need to move");
@@ -333,8 +336,41 @@ void Robot::GoBack(Direction dir) {
   }
 }
 
-std::vector<Direction> Robot::GetPath(Cell* start, Cell* end) {
+void Robot::moveToPath(std::vector<Cell*> tmppath) {
+  Cell* curr = &maze_.get(curr_x_, curr_y_);
+  Cell* start = curr;
+  Cell* end = tmppath[tmppath.size() - 1];
+  std::stack<Cell*> cells_to_visit;
+  std::vector<Direction> path;
 
+  while (curr->x_ != end->x_ || curr->y_ != end->y_) {
+  //for (int i = 0; i < 1; i++) {
+    std::vector<Cell*> neighbors = maze_.GetNeighbors(curr->x_, curr->y_);
+    if (!curr->visited_) {
+      for (Cell* neighbor : neighbors) {
+        if (!neighbor->visited_) {
+          neighbor->parent_ = curr;
+          cells_to_visit.push(neighbor);
+        }
+      }
+    }
+    curr->visited_ = true;
+    curr = cells_to_visit.top();
+    cells_to_visit.pop();
+    //printf("setting curr to %d, %d\n", curr->x_, curr->y_);
+  }
+
+  while (curr->x_ != start->x_ || curr->y_ != start->y_) {
+    path.insert(path.begin(), GetDirection(curr->parent_, curr));
+    curr = curr->parent_;
+  }
+
+  for (auto d : path) {
+    //std::cout << "dir " << d << ", ";
+    Move(d);
+  }
+
+  maze_.ClearVisitedAndParent();
 }
 
 bool Robot::IsInsideGoal(int x, int y) {
