@@ -15,23 +15,23 @@ int main() {
 	/*
     micromouse::RgbLedDevice led(64, 47, 65);
     led.setRgb(1, 1, 1);
-	
+
 	micromouse::I2cDevice i2c;
 	std::cout << "Opening: " << i2c.openI2C() << std::endl;
-	
+
 	micromouse::LedDriver leds(&i2c, LED_DRIVER_DEFAULT_ADDRESS);
 	std::cout << "Init: " << leds.init() << std::endl;
 	std::cout << "Set: " << leds.setIntensity(0, 4095) << std::endl;
 	*/
-	
+
 	//usleep(6000000);
-	
+	/*
 	std::ifstream speedStream;
 	speedStream.open("/home/debian/size.txt");
 	int x, y;
 	speedStream >> x;
 	speedStream >> y;
-	speedStream.close();
+	speedStream.close();*/
 //
 //	micromouse::Robot robot;
 //	robot.init();
@@ -52,13 +52,14 @@ int main() {
 //		else {
 //			robot.pid_drive(180, driveSpeed);
 //		}
-
-  algorithm::Robot winslow = algorithm::Robot(true, x, y, algorithm::Direction::NORTH);
+	int x = 16;
+	int y = 16;
+  algorithm::Robot winslow = algorithm::Robot(true, x, y, algorithm::Direction::SOUTH);
   winslow.Map();
-		
+
 		/*
 		std::cout << frontWall << leftWall << rightWall << std::endl;
-		
+
 		if(frontWall && leftWall && rightWall) {
 			robot.turn(2, turnSpeed);
 		}

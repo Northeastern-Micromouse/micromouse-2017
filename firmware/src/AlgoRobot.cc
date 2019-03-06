@@ -20,7 +20,9 @@ Robot::Robot(bool enable_debugging, int maze_x, int maze_y, Direction orientatio
       top_left_goal_x_(2),
       top_left_goal_y_(2),
       bottom_right_goal_x_(2),
-      bottom_right_goal_y_(2) {
+      bottom_right_goal_y_(2),
+      winslow_(enable_debugging, maze_x, maze_y, orientation) {
+        /*
   winslow_.init();
   winslow_.enableMotors();
   std::ifstream speedStream;
@@ -29,83 +31,95 @@ Robot::Robot(bool enable_debugging, int maze_x, int maze_y, Direction orientatio
   speedStream >> turnSpeed_;
   speedStream >> top_left_goal_x_;
   speedStream >> top_left_goal_y_;
-  speedStream.close();
+  speedStream.close();*/
+}
+
+bool inPath(std::vector<Cell*> path, Cell* c) {
+  //printf("%d, %d\n",  c->x_, c->y_);
+  for (int i = 0; i < path.size(); i++) {
+    //printf("%d, %d\n",  path[i]->x_, path[i]->y_);
+    if ((c->x_ == path[i]->x_) && (c->y_ == path[i]->y_)) {
+      //printf("%d, %d\n",  path[i]->x_, path[i]->y_);
+      return true;
+    }
+  }
+  return false;
 }
 
 void Robot::Map() {
-  Log("--------------- Start Mapping the Maze ---------------");
-  assert(curr_x_ == 0 && curr_y_ == 0);
+  std::stack<std::vector<Cell*>> cells_to_visit;
+  std::vector<Cell*> tmppath = {&maze_.get(0,0)};
+  Cell* curr;
+  cells_to_visit.push(tmppath);
 
-  maze_.Clear();
-
-  VisitCurrentCell();
-
-  while (!neighbors_.empty()) {
-    CellPair cell = neighbors_.top();
-    Log("Got the cell: " + std::to_string(cell.first_->x_) + "," + std::to_string(cell.first_->y_));
-    Log("Added from cell: " + std::to_string(cell.second_.x_) + "," + std::to_string(cell.second_.y_));
-    neighbors_.pop();
-	
-
-
-	
-    // Move to where you were when you put the cell on the stack.
-    std::vector<Direction> path = GetPath(&maze_.get(curr_x_, curr_y_), &cell.second_);
-    PrintPath(path);
-    for (auto direction : path) {
-		std::cout << direction << std::endl;
-      Move(direction);
+  while(!cells_to_visit.empty()) {
+  //for (int i = 0; i < 100; i++) {
+    maze_.print();
+    std::vector<Cell*> tmppath = cells_to_visit.top();
+    cells_to_visit.pop();
+    curr = tmppath.back();
+    //TODO: actually move
+    printf("moving\n");
+    curr_x_ = curr->x_;
+    curr_y_ = curr->y_;
+    winslow_.setxy(curr_x_, curr_y_);
+    if (tmppath.size() > 1) {
+      orientation_ = GetDirection(tmppath[tmppath.size() - 2], tmppath[tmppath.size() - 1]);
+      winslow_.setorientation(orientation_);
+    } else {
+      printf("one elem path\n");
+      orientation_ = Direction::SOUTH;
+      winslow_.setorientation(Direction::SOUTH);
     }
-
-    // Move to the cell
-	Log("Move to cell");
-    Direction dir = GetDirection(cell.first_);
-    Move(dir);
-	Log("visit");
-    if (!VisitCurrentCell()) {
-		Log("Go Back");
-      GoBack(dir);
+    //TODO dont hardcode this
+    if (curr->x_ == 15 && curr->y_ == 15) {
+      for (int i = 0; i < tmppath.size(); i++) {
+        printf("(row %d, col %d) -> ", tmppath[i]->x_, tmppath[i]->y_);
+      }
     }
-  }
-
+    printf("visiting curr cell\n");
+    VisitCurrentCell();
+    //TODO: orientation should be set by moving
+    for (auto neighbor: maze_.GetNeighbors(curr->x_, curr->y_)) {
+      if (!inPath(tmppath, neighbor)) {
+        std::vector<Cell*> newpath = tmppath;
+        newpath.push_back(neighbor);
+        cells_to_visit.push(newpath);
+      }
+    }
+}
   Log("Done mapping the maze. At location: " + std::to_string(curr_x_) + "," = std::to_string(curr_y_));
 }
 
 Direction Robot::GetDirection(Cell* start, Cell* end) {
-  assert(start != nullptr);
-  assert(end != nullptr);
-  if (start->x_ == end->x_ && start->y_ == end->y_ + 1) {
+  if (start->x_ == end->x_ && start->y_ + 1 == end->y_) {
+    printf("returning south\n");
     return Direction::SOUTH;
-  } else if (start->x_ == end->x_ && start->y_ == end->y_ - 1) {
+  } else if (start->x_ == end->x_ && start->y_ == end->y_ + 1) {
+    printf("returning north\n");
     return Direction::NORTH;
-  } else if (start->x_ == end->x_ + 1 && start->y_ == end->y_) {
-    return Direction::WEST;
-  } else if (start->x_ == end->x_ - 1 && start->y_ == end->y_) {
+  } else if (start->x_ + 1 == end->x_ && start->y_ == end->y_) {
+    printf("returning east\n");
     return Direction::EAST;
-  } else 
-	  if (start->x_ == end->x_ && start->y_ == end->y_) {
-    return Direction::NONE;
+  } else if (start->x_ == end->x_ + 1 && start->y_ == end->y_) {
+    printf("returning west\n");
+    return Direction::WEST;
   }
-  std::cout << start->x_ << "," << start->y_ << "     " << end->x_ << "," << end->y_ << std::endl;
-  assert(false);
+  printf("wtf? %d %d %d %d\n", start->x_, start->y_, end->x_, end->y_);
+  return Direction::NONE;
 }
 
 Direction Robot::GetDirection(Cell* cell) {
-  return GetDirection(&maze_.get(curr_x_, curr_y_), cell);
+
 }
 
 void Robot::ComputeShortestPath() {
   Log("Computing the shortest path");
-  // TODO(matt): Fix this hack.
-  path_ = GetPath(&maze_.get(0,0), &maze_.get(top_left_goal_x_, top_left_goal_y_));
 }
 
 void Robot::Run() {
   Log("Running the robot :)");
-  while (!path_.empty()) {
-    Move(path_.back());
-    path_.pop_back();
-  }
+
 }
 
 void Robot::Log(const std::string& log) {
@@ -116,63 +130,67 @@ void Robot::Log(const std::string& log) {
 
 bool Robot::VisitCurrentCell() {
   Cell& cell = maze_.get(curr_x_, curr_y_);
-  bool should_move_forward = false;
-  // Only visit a cell if it is not visited.
-  if (!cell.mapped_) {
-    Log("--------------- Visit Cell ---------------");
-    Log("X: " + std::to_string(cell.x_));
-    Log("Y: " + std::to_string(cell.y_));
-    Log("--------------------------------------------");
-    switch (orientation_) {
-      case Direction::NORTH:
-        winslow_.checkWallFront(&cell.has_top_);
-        winslow_.checkWallLeft(&cell.has_left_);
-        winslow_.checkWallRight(&cell.has_right_);
-        cell.has_bottom_ = false;
-        break;
-      case Direction::SOUTH:
-        winslow_.checkWallFront(&cell.has_bottom_);
-        winslow_.checkWallLeft(&cell.has_right_);
-        winslow_.checkWallRight(&cell.has_left_);
-        cell.has_top_ = false;
-        break;
-      case Direction::EAST:
-        winslow_.checkWallFront(&cell.has_right_);
-        winslow_.checkWallLeft(&cell.has_top_);
-        winslow_.checkWallRight(&cell.has_bottom_);
-        cell.has_left_ = false;
-        break;
-      case Direction::WEST:
-        winslow_.checkWallFront(&cell.has_left_);
-        winslow_.checkWallLeft(&cell.has_bottom_);
-        winslow_.checkWallRight(&cell.has_top_);
-        cell.has_right_ = false;
-        break;
-      default:
-        assert(false);
-    }
-
-    for (Cell* c : maze_.GetNeighbors(curr_x_, curr_y_)) {
-      if (!c->mapped_) {
-		  Log("Add " + std::to_string(c->x_) + "," + std::to_string(c->y_));
-        neighbors_.push(CellPair(c, Cell(curr_x_, curr_y_)));
-        should_move_forward = true;
-      } else {
-		  Log("Do not add " + std::to_string(c->x_) + "," + std::to_string(c->y_));
-	  }
-    }
-
-    cell.mapped_ = true;
+  Cell* aboveCell;
+  Cell* belowCell;
+  Cell* leftCell;
+  Cell* rightCell;
+  Cell fakeCell;
+  Cell* fake = &fakeCell;
+  if (curr_y_ - 1 >= 0) {
+    aboveCell = &maze_.get(curr_x_, curr_y_ - 1);
   } else {
-    std::stringstream ss;
-    ss << "Trying to visit cell: ";
-    ss << curr_x_;
-    ss << ",";
-    ss << curr_y_;
-    ss << " and it is already visited";
-    Log(ss.str());
+    aboveCell = fake;
   }
-  return should_move_forward;
+  if (curr_y_ + 1 < maze_.rows()) {
+    belowCell = &maze_.get(curr_x_, curr_y_ + 1);
+  } else {
+    belowCell = fake;
+  }
+  if (curr_x_ - 1 >= 0) {
+    leftCell = &maze_.get(curr_x_ - 1, curr_y_);
+  } else {
+    leftCell = fake;
+  }
+  if (curr_x_ + 1 < maze_.cols()) {
+    rightCell = &maze_.get(curr_x_ + 1, curr_y_);
+  } else {
+    rightCell = fake;
+  }
+  switch(orientation_) {
+    case Direction::NORTH:
+      winslow_.checkWallFront(&cell.has_top_);
+      winslow_.checkWallFront(&aboveCell->has_bottom_);
+      winslow_.checkWallLeft(&cell.has_left_);
+      winslow_.checkWallLeft(&leftCell->has_right_);
+      winslow_.checkWallRight(&cell.has_right_);
+      winslow_.checkWallRight(&rightCell->has_left_);
+    break;
+    case Direction::SOUTH:
+      winslow_.checkWallFront(&cell.has_bottom_);
+      winslow_.checkWallFront(&belowCell->has_top_);
+      winslow_.checkWallLeft(&cell.has_right_);
+      winslow_.checkWallLeft(&rightCell->has_left_);
+      winslow_.checkWallRight(&cell.has_left_);
+      winslow_.checkWallRight(&leftCell->has_right_);
+    break;
+    case Direction::WEST:
+      winslow_.checkWallFront(&cell.has_left_);
+      winslow_.checkWallFront(&leftCell->has_right_);
+      winslow_.checkWallLeft(&cell.has_bottom_);
+      winslow_.checkWallLeft(&belowCell->has_top_);
+      winslow_.checkWallRight(&cell.has_top_);
+      winslow_.checkWallRight(&aboveCell->has_bottom_);
+    break;
+    case Direction::EAST:
+      winslow_.checkWallFront(&cell.has_right_);
+      winslow_.checkWallFront(&rightCell->has_left_);
+      winslow_.checkWallLeft(&cell.has_top_);
+      winslow_.checkWallLeft(&aboveCell->has_bottom_);
+      winslow_.checkWallRight(&cell.has_bottom_);
+      winslow_.checkWallRight(&belowCell->has_top_);
+    break;
+  }
+  return true;
 }
 
 void Robot::Move(Direction dir) {
@@ -316,41 +334,7 @@ void Robot::GoBack(Direction dir) {
 }
 
 std::vector<Direction> Robot::GetPath(Cell* start, Cell* end) {
-  Cell* curr = start;
-  std::vector<Direction> path;
-  path.push_back(Direction::NONE);
-  std::stack<Cell*> cells_to_visit;
 
-  while (curr->x_ != end->x_ || curr->y_ != end->y_) {
-    // Get the reachable neighbors of this cell and add them to the stack.
-    std::vector<Cell*> neighbors = maze_.GetNeighbors(curr->x_, curr->y_);
-    if (!curr->visited_) {
-      for (Cell* neighbor : neighbors) {
-        if (!neighbor->visited_) {
-          neighbor->parent_ = curr;
-          cells_to_visit.push(neighbor);
-        }
-      }
-    }
-    curr->visited_ = true;
-    // Set the parent and advance curr
-    curr = cells_to_visit.top();
-    cells_to_visit.pop();
-    assert(curr != nullptr && end != nullptr);
-  }
-
-  end->parent_ = curr;
-
-  // Build the path
-  curr = end;
-  while (curr->x_ != start->x_ || curr->y_ != start->y_) {
-    path.insert(path.begin(), GetDirection(curr->parent_, curr));
-    curr = curr->parent_;
-  }
-
-  // Reset shit.
-  maze_.ClearVisitedAndParent();
-  return path;
 }
 
 bool Robot::IsInsideGoal(int x, int y) {
