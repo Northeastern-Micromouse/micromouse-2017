@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <climits>
 
 namespace algorithm {
 
@@ -17,10 +18,10 @@ Robot::Robot(bool enable_debugging, int maze_x, int maze_y, Direction orientatio
       curr_y_(0),
       driveSpeed_(0),
       turnSpeed_(0),
-      top_left_goal_x_(2),
-      top_left_goal_y_(2),
-      bottom_right_goal_x_(2),
-      bottom_right_goal_y_(2),
+      top_left_goal_x_(7),
+      top_left_goal_y_(7),
+      bottom_right_goal_x_(8),
+      bottom_right_goal_y_(8),
       winslow_(enable_debugging, maze_x, maze_y, orientation) {
         /*
   winslow_.init();
@@ -47,10 +48,47 @@ bool inPath(std::vector<Cell*> path, Cell* c) {
 }
 
 void Robot::Map() {
+  curr_x_ = 0;
+  curr_y_ = 0;
+  std::stack<Cell*> cells_to_visit;
+  Cell* curr = &maze_.get(0,0);
+  cells_to_visit.push(curr);
+  std::vector<Cell*> visited = {curr};
+
+  while(!cells_to_visit.empty()) {
+    curr = cells_to_visit.top();
+    cells_to_visit.pop();
+    std::vector<Cell*> tmppath = {curr};
+    moveToPath(tmppath);
+    if (curr->x_ == top_left_goal_x_ && curr->y_ == top_left_goal_y_) {
+      Cell* hi = &maze_.get(top_left_goal_x_,top_left_goal_y_);
+      while (hi->x_ != 0 || hi->y_ != 0) {
+        printf("col: %d row: %d ->", hi->x_, hi->y_);
+        hi = hi->actualParent_;
+      }
+      printf("\n");
+    }
+    VisitCurrentCell();
+    visited.push_back(curr);
+    for (auto neighbor: maze_.GetNeighbors(curr->x_, curr->y_)) {
+      if (!inPath(visited, neighbor)) {
+        neighbor->actualParent_ = curr;
+        cells_to_visit.push(neighbor);
+      }
+    }
+  }
+}
+
+void Robot::ComputeShortestPath() {
+  printf("computing shortest path ;) \n\n");
   std::stack<std::vector<Cell*>> cells_to_visit;
   std::vector<Cell*> tmppath = {&maze_.get(0,0)};
   Cell* curr;
   cells_to_visit.push(tmppath);
+  std::vector<std::vector<Cell*>> possiblePaths;
+  std::vector<Cell*> shortestPath;
+  curr_x_ = 0;
+  curr_y_ = 0;
 
   while(!cells_to_visit.empty()) {
   //for (int i = 0; i < 10; i++) {
@@ -61,28 +99,25 @@ void Robot::Map() {
     //printf("x: %d y: %d\n", curr->x_, curr->y_);
     //TODO: actually move
     //TODO: orientation should be set by moving
-    /*
+
     curr_x_ = curr->x_;
     curr_y_ = curr->y_;
-    winslow_.setxy(curr_x_, curr_y_);
-    if (tmppath.size() > 1) {
-      orientation_ = GetDirection(tmppath[tmppath.size() - 2], tmppath[tmppath.size() - 1]);
-      winslow_.setorientation(orientation_);
-    } else {
-      printf("one elem path\n");
-      orientation_ = Direction::SOUTH;
-      winslow_.setorientation(Direction::SOUTH);
-    }*/
+    //winslow_.setxy(curr_x_, curr_y_);
+    //if (tmppath.size() > 1) {
+    //  orientation_ = GetDirection(tmppath[tmppath.size() - 2], tmppath[tmppath.size() - 1]);
+    //  winslow_.setorientation(orientation_);
+    //} else {
+    //  printf("one elem path\n");
+    //  orientation_ = Direction::SOUTH;
+    //  winslow_.setorientation(Direction::SOUTH);
+    //}
     //TODO dont hardcode this
-    moveToPath(tmppath);
-    if (curr->x_ == 15 && curr->y_ == 15) {
-      for (int i = 0; i < tmppath.size(); i++) {
-        printf("(row %d, col %d) ->", tmppath[i]->x_, tmppath[i]->y_);
-      }
-      printf("\nstack size: %d\n", cells_to_visit.size());
+    //moveToPath(tmppath);
+    if (curr->x_ == top_left_goal_x_ && curr->y_ == top_left_goal_y_) {
+        possiblePaths.push_back(std::vector<Cell*>(tmppath));
     }
     //printf("visiting curr cell\n");
-    VisitCurrentCell();
+    //VisitCurrentCell();
     for (auto neighbor: maze_.GetNeighbors(curr->x_, curr->y_)) {
       if (!inPath(tmppath, neighbor)) {
         std::vector<Cell*> newpath = tmppath;
@@ -91,7 +126,44 @@ void Robot::Map() {
       }
     }
 }
-  Log("Done mapping the maze. At location: " + std::to_string(curr_x_) + "," = std::to_string(curr_y_));
+  curr_x_ = 0;
+  curr_y_ = 0;
+  shortestPath = possiblePaths[0];
+  int minTurns = INT_MAX;
+  for (auto a : possiblePaths) {
+    Direction prevDir = Direction::NONE;
+    int turns = 0;
+    for (int i = 0; i < a.size() - 1; i++) {
+      if (prevDir != GetDirection(a[i], a[i + 1])) {
+        turns++;
+      }
+    }
+    if (turns < minTurns) {
+      minTurns = turns;
+      shortestPath = a;
+    }
+  }
+  for (int i = 0; i < shortestPath.size() - 1; i++) {
+    Direction dir = GetDirection(shortestPath[i], shortestPath[i + 1]);
+    switch(dir) {
+      case Direction::NORTH:
+        printf("north");
+        break;
+      case Direction::SOUTH:
+        printf("south");
+        break;
+      case Direction::EAST:
+        printf("east");
+        break;
+      case Direction::WEST:
+        printf("west");
+        break;
+    }
+    printf(" -> ");
+    Move(GetDirection(shortestPath[i], shortestPath[i + 1]));
+  }
+  printf("\n");
+  Log("Done computing the shortest path. At location: ");
 }
 
 Direction Robot::GetDirection(Cell* start, Cell* end) {
@@ -114,10 +186,6 @@ Direction Robot::GetDirection(Cell* start, Cell* end) {
 
 Direction Robot::GetDirection(Cell* cell) {
 
-}
-
-void Robot::ComputeShortestPath() {
-  Log("Computing the shortest path");
 }
 
 void Robot::Run() {

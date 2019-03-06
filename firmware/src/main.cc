@@ -54,8 +54,9 @@ int main() {
 //		}
 	int x = 16;
 	int y = 16;
-  algorithm::Robot winslow = algorithm::Robot(true, x, y, algorithm::Direction::SOUTH);
+  algorithm::Robot winslow = algorithm::Robot(false, x, y, algorithm::Direction::SOUTH);
   winslow.Map();
+	winslow.ComputeShortestPath();
 
 		/*
 		std::cout << frontWall << leftWall << rightWall << std::endl;
