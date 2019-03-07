@@ -135,7 +135,9 @@ void Robot::ComputeShortestPath() {
     int turns = 0;
     for (int i = 0; i < a.size() - 1; i++) {
       if (prevDir != GetDirection(a[i], a[i + 1])) {
-        turns++;
+        turns+=3;
+      } else {
+        turns+=1;
       }
     }
     if (turns < minTurns) {
